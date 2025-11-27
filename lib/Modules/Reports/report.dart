@@ -4,13 +4,12 @@ import 'package:contol_officer_app/Modules/Reports/districtReport.dart';
 import 'package:contol_officer_app/ReusableWidgets/appBar.dart';
 import 'package:contol_officer_app/ReusableWidgets/dropdown.dart';
 import 'package:contol_officer_app/ReusableWidgets/loader.dart';
-import 'package:contol_officer_app/ReusableWidgets/navbar.dart';
 import 'package:contol_officer_app/utils/colors.dart';
 import 'package:flutter/material.dart';
 
 class Report extends StatefulWidget {
   const Report({super.key});
-
+  
   @override
   State<Report> createState() => _ReportState();
 }
@@ -148,7 +147,7 @@ class _ReportState extends State<Report> with SingleTickerProviderStateMixin {
           )),
       ),
 
-      bottomNavigationBar: BottomNavBarDesign(),
+     
     );
   }
 }

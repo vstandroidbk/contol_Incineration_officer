@@ -3,6 +3,8 @@ import 'package:contol_officer_app/ReusableWidgets/textField.dart';
 import 'package:contol_officer_app/Routes/app_routes.dart';
 import 'package:contol_officer_app/utils/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -19,38 +21,35 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscureText = true;
   String? _emailError;
   String? _passwordError;
-void _validateAndLogin() {
-  // final email = emailController.text.trim();
-  // final password = passwordController.text.trim();
+  void _validateAndLogin() {
+    // final email = emailController.text.trim();
+    // final password = passwordController.text.trim();
 
-  // final emailError = ValidationUtil.validateEmail(email);
-  // final passwordError = ValidationUtil.validatePassword(password);
+    // final emailError = ValidationUtil.validateEmail(email);
+    // final passwordError = ValidationUtil.validatePassword(password);
 
-  // setState(() {
-  //   _emailError = emailError;
-  //   _passwordError = passwordError;
-  // });
+    // setState(() {
+    //   _emailError = emailError;
+    //   _passwordError = passwordError;
+    // });
 
-  // if (emailError == null && passwordError == null) {
-  //   // ✅ All validations passed
-  //   if (!mounted) return; // extra safety
+    // if (emailError == null && passwordError == null) {
+    //   // ✅ All validations passed
+    //   if (!mounted) return; // extra safety
 
-  //   //Show snack bar first
-  //   ScaffoldMessenger.of(context).showSnackBar(
-  //     const SnackBar(content: Text("Login successful!")),
-  //   );
+    //   //Show snack bar first
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     const SnackBar(content: Text("Login successful!")),
+    //   );
 
     // Navigate after a short delay
     Future.delayed(const Duration(milliseconds: 600), () {
       if (!mounted) return; // check if widget still exists
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        AppRoutes.homeview,
-        (route) => false,
-      );
+    Get.offAllNamed(AppRoutes.dashboard);
+
     });
-  // }
-}
+    // }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,15 +74,15 @@ void _validateAndLogin() {
                         Text(
                           "Officer Login",
                           style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 18,
                             fontWeight: FontWeight.w500,
                             color: AppColors.textColor,
                           ),
                         ),
                         Text(
-                          "Access your reginoal management portal",
+                          "Access your regional management portal",
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 14,
                             color: AppColors.lighttextColor,
                             fontWeight: FontWeight.w500,
                           ),
@@ -122,7 +121,7 @@ void _validateAndLogin() {
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: () {
-                        Navigator.pushNamed(context, AppRoutes.forgotPassword);
+                        Get.toNamed(AppRoutes.forgotPassword);
                       },
                       child: const Text(
                         "Forgot Password",

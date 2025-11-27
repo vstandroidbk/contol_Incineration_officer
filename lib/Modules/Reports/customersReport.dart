@@ -55,7 +55,7 @@ class _CustomersreportState extends State<Customersreport> {
                 const Text(
                   "Monthly Trends",
                   style: TextStyle(
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                     fontSize: 16,
                   ),
                 ),
@@ -64,7 +64,8 @@ class _CustomersreportState extends State<Customersreport> {
                   "Q4 2024 quarters",
                   style: TextStyle(
                     fontSize: 14,
-                    color: AppColors.bodytextColor.withOpacity(0.7),
+                    color: AppColors.bodytextColor.withOpacity(0.6),
+                    fontWeight: FontWeight.w500
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -81,9 +82,9 @@ class _CustomersreportState extends State<Customersreport> {
             ),
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           Categorydis(),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
 
           Allcustomers(),
           

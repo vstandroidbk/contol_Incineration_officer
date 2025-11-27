@@ -29,7 +29,7 @@ class Customergrid extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -56,19 +56,19 @@ class Customergrid extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               count,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
             ),
             Text(
               label,
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 14,
                 color: AppColors.bodytextColor.withOpacity(0.6),
                 fontWeight: FontWeight.w500,
               ),
             ),
             Text(
               subLabel,
-              style: TextStyle(fontSize: 14, color: subLabelColor,fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 12, color: subLabelColor,fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -128,7 +128,7 @@ class CustomerGridItem extends StatelessWidget {
       crossAxisCount: 2,
       mainAxisSpacing: 10,
       crossAxisSpacing: 10,
-      childAspectRatio: 1.2,
+      childAspectRatio: 1.3,
 
       children: stats.map((item) {
         return Customergrid(

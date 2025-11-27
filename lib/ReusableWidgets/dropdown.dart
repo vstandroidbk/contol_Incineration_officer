@@ -1,5 +1,6 @@
-import 'package:contol_officer_app/utils/colors.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:contol_officer_app/utils/colors.dart';
 
 class CustomDropdownField extends StatelessWidget {
   final String label;
@@ -24,86 +25,102 @@ class CustomDropdownField extends StatelessWidget {
     final bool hasError = errorText != null && errorText!.isNotEmpty;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      mainAxisSize: MainAxisSize.min,  
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (label.isNotEmpty)
           Text(
             label,
-            style: TextStyle(
-              fontSize: 12,
-              color: AppColors.lighttextColor,
-            ),
+            style: TextStyle(fontSize: 12, color: AppColors.lighttextColor),
           ),
+        if (label.isNotEmpty) const SizedBox(height: 4),
 
-        if (label.isNotEmpty) const SizedBox(height: 3),
+        DropdownButtonFormField2<String>(
+          value: value,
+          isExpanded: true,
 
-        IntrinsicWidth(               
-          child: DropdownButtonFormField<String>(
-            value: value,
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 6,
-                vertical: 6,
-              ),
-              isDense: true,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(color: AppColors.textfieldBorder),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(
-                  color: hasError ? Colors.red : AppColors.textfieldBorder,
-                  width: 1,
-                ),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(
-                  color: hasError ? Colors.red :AppColors.primary,
-                  width: 1.5,
-                ),
-              ),
-              errorText: errorText,
-            ),
-            icon: const Icon(Icons.keyboard_arrow_down, size: 18,color: AppColors.bodytextColor,),
-            style: const TextStyle(fontSize: 13),
+          decoration: InputDecoration(
             isDense: true,
-            isExpanded: false,           
-            onChanged: onChanged,
-            hint: Text(
-              hintText,
-              style: TextStyle(
-                color: AppColors.bodytextColor.withOpacity(0.6),
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
+            contentPadding: const EdgeInsets.symmetric(vertical: 7),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: AppColors.textfieldBorder),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(
+                color: hasError ? Colors.red : AppColors.textfieldBorder,
               ),
             ),
-            items: items
-                .map(
-                  (item) => DropdownMenuItem(
-                    value: item,
-                    child: Text(
-                      item,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.bodytextColor
-                      ),
-                    ),
-                  ),
-                )
-                .toList(),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(
+                color: hasError ? Colors.red : AppColors.primary,
+                width: 1.4,
+              ),
+            ),
+            errorText: errorText,
           ),
+
+          hint: Text(
+            hintText,
+            style: TextStyle(
+              color: AppColors.bodytextColor.withOpacity(0.6),
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+
+          iconStyleData: IconStyleData(
+            icon: const Icon(
+              Icons.keyboard_arrow_down,
+              size: 20,
+              color: AppColors.bodytextColor,
+            ),
+          ),
+
+          buttonStyleData: const ButtonStyleData(
+            padding: EdgeInsets.only(left: 0, right: 10),
+          ),
+
+          dropdownStyleData: DropdownStyleData(
+            maxHeight: 250,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Colors.white,
+            ),
+            elevation: 2,
+          ),
+
+          menuItemStyleData: const MenuItemStyleData(
+            height: 42,
+            padding: EdgeInsets.symmetric(horizontal: 12),
+          ),
+
+          onChanged: onChanged,
+
+          items: items
+              .map(
+                (item) => DropdownMenuItem<String>(
+                  value: item,
+                  child: Text(
+                    item,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.bodytextColor,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              )
+              .toList(),
         ),
       ],
     );
   }
 }
 
-/// New CustomDropdownField2 matching CustomTextField design
-
+/// New CustomDropdownField2
 class CustomDropdownField2 extends StatelessWidget {
   final String label;
   final String? value;
@@ -137,51 +154,94 @@ class CustomDropdownField2 extends StatelessWidget {
             style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
           ),
         if (label.isNotEmpty) const SizedBox(height: 6),
-        Container(
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: hasError ? Colors.red : AppColors.textfieldBorder,
-              width: 1,
+
+        DropdownButtonFormField2<String>(
+          value: value,
+          isExpanded: true,
+          onChanged: enabled ? onChanged : null,
+
+          decoration: InputDecoration(
+            isDense: true,
+            contentPadding: const EdgeInsets.symmetric(vertical: 12),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: AppColors.textfieldBorder),
             ),
-            borderRadius: BorderRadius.circular(12),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: hasError ? Colors.red : AppColors.textfieldBorder,
+                width: 1,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: hasError ? Colors.red : AppColors.primary,
+                width: 1.4,
+              ),
+            ),
+            disabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: AppColors.textfieldBorder.withOpacity(0.5),
+              ),
+            ),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: value,
-              isExpanded: true,
-              icon: Icon(
-                Icons.keyboard_arrow_down,
-                color: AppColors.bodytextColor,
-              ),
-              iconSize: 24,
-              hint: Text(
-                hintText,
-                style: TextStyle(
-                  color: AppColors.bodytextColor.withOpacity(0.6),
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                ),
-              ),
-              items: items
-                  .map(
-                    (item) => DropdownMenuItem<String>(
-                      value: item,
-                      child: Text(
-                        item,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.bodytextColor,
-                        ),
-                      ),
+
+          hint: Text(
+            hintText,
+            style: TextStyle(
+              color: AppColors.bodytextColor.withOpacity(0.55),
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+
+          iconStyleData: const IconStyleData(
+            icon: Icon(
+              Icons.keyboard_arrow_down,
+              size: 20,
+              color: AppColors.bodytextColor,
+            ),
+          ),
+
+          buttonStyleData: ButtonStyleData(
+            padding: const EdgeInsets.only(right: 10),
+            decoration: const BoxDecoration(),
+          ),
+
+          dropdownStyleData: DropdownStyleData(
+            maxHeight: 250,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            elevation: 2,
+          ),
+
+          menuItemStyleData: const MenuItemStyleData(
+            height: 42,
+            padding: EdgeInsets.symmetric(horizontal: 12),
+          ),
+
+          items: items
+              .map(
+                (item) => DropdownMenuItem<String>(
+                  value: item,
+                  child: Text(
+                    item,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.bodytextColor,
                     ),
-                  )
-                  .toList(),
-              onChanged: enabled ? onChanged : null,
-            ),
-          ),
+                  ),
+                ),
+              )
+              .toList(),
         ),
+
         if (hasError)
           Padding(
             padding: const EdgeInsets.only(top: 4),

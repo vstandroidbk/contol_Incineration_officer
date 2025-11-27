@@ -2,6 +2,8 @@ import 'package:contol_officer_app/ReusableWidgets/authHeader.dart';
 import 'package:contol_officer_app/Routes/app_routes.dart';
 import 'package:contol_officer_app/utils/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
   const EmailVerificationScreen({super.key});
@@ -12,8 +14,10 @@ class EmailVerificationScreen extends StatefulWidget {
 }
 
 class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
-  final List<TextEditingController> otpControllers =
-      List.generate(4, (_) => TextEditingController());
+  final List<TextEditingController> otpControllers = List.generate(
+    4,
+    (_) => TextEditingController(),
+  );
   final List<FocusNode> otpFocusNodes = List.generate(4, (_) => FocusNode());
   bool hasError = false;
 
@@ -33,7 +37,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
       setState(() {
         hasError = false;
       });
-      Navigator.pushNamed(context, AppRoutes.createNewPassword);
+      Get.toNamed(AppRoutes.createNewPassword);
     }
   }
 
@@ -58,7 +62,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                   Text(
                     "Verification Email",
                     style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 18,
                       fontWeight: FontWeight.w600,
                       color: AppColors.textColor,
                     ),
@@ -69,7 +73,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                     child: Text(
                       "To continue, please enter the OTP we've sent to your email ID.",
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 14,
                         color: AppColors.lighttextColor,
                         fontWeight: FontWeight.w500,
                       ),
@@ -80,7 +84,9 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                   Text(
                     "customer@gmail.com",
                     style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w600),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 30),
 
@@ -98,8 +104,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                               ? AppColors.primary
                               : Colors.transparent,
                           border: Border.all(
-                            color: 
-                                AppColors.primary.withOpacity(0.8),
+                            color: AppColors.primary.withOpacity(0.8),
                             width: 1.5,
                           ),
                           borderRadius: BorderRadius.circular(18),
@@ -122,11 +127,13 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                           onChanged: (value) {
                             setState(() {}); // refresh background color
                             if (value.isNotEmpty && index < 3) {
-                              FocusScope.of(context)
-                                  .requestFocus(otpFocusNodes[index + 1]);
+                              FocusScope.of(
+                                context,
+                              ).requestFocus(otpFocusNodes[index + 1]);
                             } else if (value.isEmpty && index > 0) {
-                              FocusScope.of(context)
-                                  .requestFocus(otpFocusNodes[index - 1]);
+                              FocusScope.of(
+                                context,
+                              ).requestFocus(otpFocusNodes[index - 1]);
                             }
                           },
                         ),
@@ -141,7 +148,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                     children: [
                       Expanded(
                         child: OutlinedButton(
-                           style: OutlinedButton.styleFrom(
+                          style: OutlinedButton.styleFrom(
                             side: const BorderSide(
                               color: AppColors.textfieldBorder,
                             ),
@@ -156,7 +163,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                             ),
                           ),
                           onPressed: () {
-                            Navigator.pop(context);
+                            Get.back();
                           },
                           child: const Text("Back"),
                         ),
@@ -164,7 +171,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
+                          style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
                             foregroundColor: Colors.white,
                             textStyle: const TextStyle(

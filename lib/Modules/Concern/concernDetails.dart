@@ -101,9 +101,11 @@ class ConcernDetailsScreen extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(16),
-        child: _updateButton(context),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: _updateButton(context),
+        ),
       ),
     );
   }

@@ -26,14 +26,14 @@ class Categorydis extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                   fontSize: 16,
                   color: AppColors.bodytextColor,
-                  letterSpacing: 0.5,
+                
                 ),
               ),
               Text(
                 'Q4 2024',
                 style: TextStyle(
-                  fontWeight: FontWeight.w400,
-                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
                   color: AppColors.bodytextColor.withOpacity(0.6),
                 ),
               ),

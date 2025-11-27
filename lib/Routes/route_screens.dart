@@ -9,34 +9,50 @@ import 'package:contol_officer_app/Modules/authentication/login.dart';
 import 'package:contol_officer_app/Modules/authentication/new_password.dart';
 import 'package:contol_officer_app/Modules/profile/editProfile.dart';
 import 'package:contol_officer_app/Modules/profile/profile.dart';
+import 'package:contol_officer_app/ReusableWidgets/mainNav.dart';
 import 'package:contol_officer_app/Routes/app_routes.dart';
-import 'package:flutter/material.dart';
+import 'package:get/get_navigation/src/routes/get_route.dart';
 
 class AppPages {
-  static Map<String, WidgetBuilder> routes = {
+  static final routes = <GetPage>[
     //authentication
-    AppRoutes.login: (context) => const LoginScreen(),
-    AppRoutes.forgotPassword: (context) => const ForgotPasswordScreen(),
-    AppRoutes.emailVerification: (context) => const EmailVerificationScreen(),
-    AppRoutes.createNewPassword: (context) => const CreateNewPasswordScreen(),
+  
+    GetPage(name: AppRoutes.login, page: () => const LoginScreen()),
+    GetPage(
+      name: AppRoutes.forgotPassword,
+      page: () => const ForgotPasswordScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.emailVerification,
+      page: () => const EmailVerificationScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.createNewPassword,
+      page: () => const CreateNewPasswordScreen(),
+    ),
+
+ GetPage(
+      name: AppRoutes.dashboard,
+      page: () => MainScreen(),
+    ),
+
 
     //home
-    AppRoutes.homeview: (context) => const Homeview(),
+    GetPage(name: AppRoutes.homeview, page: () => const Homeview()),
 
     //notification
-    AppRoutes.notifications : (context) => const Notifications() ,
-
+    GetPage(name: AppRoutes.notifications, page: () => const Notifications()),
     //reports
-    AppRoutes.reports: (context) => const Report(),
+    GetPage(name: AppRoutes.reports, page: () => const Report()),
 
     //Concern
-    AppRoutes.concern: (context) => const Concern(),
+    GetPage(name: AppRoutes.concern, page: () => const Concern()),
 
     //field
-    AppRoutes.field: (context) => const Field(),
+    GetPage(name: AppRoutes.field, page: () => const Field()),
 
     //profile
-    AppRoutes.profile: (context) => const Profile(),
-    AppRoutes.editProfile: (context)=> const Editprofile()
-  };
+    GetPage(name: AppRoutes.profile, page: () => const Profile()),
+    GetPage(name: AppRoutes.editProfile, page: () => const Editprofile()),
+  ];
 }

@@ -6,6 +6,8 @@ import 'package:contol_officer_app/ReusableWidgets/loader.dart';
 import 'package:contol_officer_app/ReusableWidgets/navbar.dart';
 import 'package:contol_officer_app/utils/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class Concern extends StatefulWidget {
@@ -29,6 +31,7 @@ class _ConcernState extends State<Concern> {
       });
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,6 +50,7 @@ class _ConcernState extends State<Concern> {
               showModalBottomSheet(
                 context: context,
                 isScrollControlled: true,
+
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                 ),
@@ -118,15 +122,14 @@ class _ConcernState extends State<Concern> {
                 Text(
                   'Recent Concern',
                   style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 18,
                     color: AppColors.bodytextColor,
-                    letterSpacing: .5,
                   ),
                 ),
-        
+
                 const SizedBox(height: 10),
-        
+
                 /// SCROLLABLE SECTION
                 Expanded(
                   child: ListView(
@@ -146,7 +149,7 @@ class _ConcernState extends State<Concern> {
                         goesTo: "Admin",
                         pickupDate: 'Oct 15, 2025',
                       ),
-        
+
                       ConcernCard(
                         industryName: "ABC Industries",
                         concern: "COU - Manifest Discrepancy",
@@ -160,7 +163,7 @@ class _ConcernState extends State<Concern> {
                         goesTo: "Compliance Team",
                         pickupDate: 'Oct 25, 2025',
                       ),
-        
+
                       ConcernCard(
                         industryName: "Medical Industries",
                         concern: "C003 - Documentation Issue",
@@ -173,7 +176,7 @@ class _ConcernState extends State<Concern> {
                         goesTo: "Document Team",
                         pickupDate: 'Nov 5, 2025',
                       ),
-        
+
                       const SizedBox(height: 12),
                     ],
                   ),
@@ -184,7 +187,7 @@ class _ConcernState extends State<Concern> {
         ),
       ),
 
-      bottomNavigationBar: BottomNavBarDesign(),
+  
     );
   }
 }
@@ -228,7 +231,7 @@ class _StatusContainer extends StatelessWidget {
                 style: TextStyle(
                   color: textColor,
                   fontWeight: FontWeight.bold,
-                  fontSize: 22,
+                  fontSize: 18,
                 ),
               ),
               const SizedBox(width: 6),
@@ -236,8 +239,8 @@ class _StatusContainer extends StatelessWidget {
                 label,
                 style: TextStyle(
                   color: textColor,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
                 ),
               ),
             ],
@@ -440,20 +443,17 @@ class ConcernCard extends StatelessWidget {
                   width: double.infinity,
                   child: OutlinedButton.icon(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => ConcernDetailsScreen(
-                            industryName: industryName,
-                            concern: concern,
-                            detail: detail,
-                            priority: priority,
-                            priorityColor: prioritytext,
-                            progress: progress,
-                            progressColor: progressbtnColor,
-                            goesTo: goesTo,
-                            pickupDate: pickupDate,
-                          ),
+                      Get.to(
+                        () => ConcernDetailsScreen(
+                          industryName: industryName,
+                          concern: concern,
+                          detail: detail,
+                          priority: priority,
+                          priorityColor: prioritytext,
+                          progress: progress,
+                          progressColor: progressbtnColor,
+                          goesTo: goesTo,
+                          pickupDate: pickupDate,
                         ),
                       );
                     },
@@ -516,24 +516,21 @@ class ConcernCard extends StatelessWidget {
                     const SizedBox(width: 10),
                     Expanded(
                       child: OutlinedButton.icon(
-                         onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => ConcernDetailsScreen(
-                            industryName: industryName,
-                            concern: concern,
-                            detail: detail,
-                            priority: priority,
-                            priorityColor: prioritytext,
-                            progress: progress,
-                            progressColor: progressbtnColor,
-                            goesTo: goesTo,
-                            pickupDate: pickupDate,
-                          ),
-                        ),
-                      );
-                    },
+                        onPressed: () {
+                          Get.to(
+                            () => ConcernDetailsScreen(
+                              industryName: industryName,
+                              concern: concern,
+                              detail: detail,
+                              priority: priority,
+                              priorityColor: prioritytext,
+                              progress: progress,
+                              progressColor: progressbtnColor,
+                              goesTo: goesTo,
+                              pickupDate: pickupDate,
+                            ),
+                          );
+                        },
                         icon: const Icon(LucideIcons.eye, size: 18),
                         label: const Text("View Details"),
                         style: OutlinedButton.styleFrom(

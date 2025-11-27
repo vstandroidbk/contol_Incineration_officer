@@ -38,14 +38,15 @@ class _DistrictreportState extends State<Districtreport> {
                         const Text(
                           "District-wise Overview",
                           style: TextStyle(
-                              fontWeight: FontWeight.w700, fontSize: 16),
+                              fontWeight: FontWeight.w600, fontSize: 16),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           "Q4 2024 quarters",
                           style: TextStyle(
                             fontSize: 14,
-                            color: AppColors.bodytextColor.withOpacity(0.7),
+                            color: AppColors.bodytextColor.withOpacity(0.6),
+                            fontWeight: FontWeight.w500
                           ),
                         ),
                       ],

@@ -5,6 +5,10 @@ class AppRoutes {
   static const String emailVerification = '/email_verification';
   static const String createNewPassword = '/createNewPassword';
 
+
+  //dashboard
+  static const dashboard = "/dashboard";
+
   //Home
   static const String homeview = '/homeview';
 

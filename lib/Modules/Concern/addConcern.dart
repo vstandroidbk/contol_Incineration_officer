@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:contol_officer_app/utils/colors.dart';
 
 class RaiseConcernBottomSheet extends StatefulWidget {
-  const RaiseConcernBottomSheet({Key? key}) : super(key: key);
+  const RaiseConcernBottomSheet({super.key});
 
   @override
   State<RaiseConcernBottomSheet> createState() =>
@@ -21,7 +21,6 @@ class _RaiseConcernBottomSheetState extends State<RaiseConcernBottomSheet> {
   String? _selectedPriority;
 
   final List<String> _concernTypes = ['Type A', 'Type B', 'Type C'];
-
   final List<String> _priorities = ['Low', 'Medium', 'High'];
 
   @override
@@ -33,117 +32,137 @@ class _RaiseConcernBottomSheetState extends State<RaiseConcernBottomSheet> {
 
   void _submitForm() {
     if (_formKey.currentState?.validate() ?? false) {
-      // Process form submission logic here
-      Navigator.of(context).pop(); // Close bottom sheet after submission
+      Navigator.of(context).pop();
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
     return SafeArea(
-      child: Padding(
-        padding: EdgeInsets.all(12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Stack(
-              children: [
-                Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    'Raise New Concern',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.topRight,
-                  child: IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.of(context).pop(),
-                    tooltip: 'Close',
-                  ),
-                ),
-              ],
+      top: false,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.65,
             ),
-            const SizedBox(height: 14),
-            Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  CustomDropdownField2(
-                    label: 'Concern Type',
-                    items: _concernTypes,
-                    value: _selectedConcernType,
-                    hintText: 'Select type',
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedConcernType = value;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 10),
-                  CustomTextField(
-                    label: 'Customer',
-                    hintText: 'Enter customer name',
-                    controller: _customerController,
-                    keyboardType: TextInputType.text,
-                    errorText: null,
-                  ),
-                  const SizedBox(height: 10),
-                  CustomTextField(
-                    label: 'Discription',
-                    hintText: 'Describe the concern in detail...',
-                    controller: _descriptionController,
-                    keyboardType: TextInputType.multiline,
-                    errorText: null,
-                  ),
-                  const SizedBox(height: 10),
-                  CustomDropdownField2(
-                    label: 'Priority',
-                    items: _priorities,
-                    value: _selectedPriority,
-                    hintText: 'Select priority',
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedPriority = value;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _submitForm,
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: AppColors.primary,
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 6,
-                          horizontal: 12,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              child: SingleChildScrollView(
+                padding: EdgeInsets.only(bottom: bottomInset + 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Stack(
+                      children: [
+                        Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                            'Raise New Concern',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 18,
+                            ),
+                          ),
                         ),
-                        minimumSize: const Size(0, 40),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
+                        Align(
+                          alignment: Alignment.topRight,
+                          child: IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () => Navigator.of(context).pop(),
+                            tooltip: 'Close',
+                          ),
                         ),
-                      ),
-                      child: const Text(
-                        'Submit Concern',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 14),
+
+                    Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          CustomDropdownField2(
+                            label: 'Concern Type',
+                            items: _concernTypes,
+                            value: _selectedConcernType,
+                            hintText: 'Select type',
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedConcernType = value;
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 10),
+
+                          CustomTextField(
+                            label: 'Customer',
+                            hintText: 'Enter customer name',
+                            controller: _customerController,
+                            keyboardType: TextInputType.text,
+                          ),
+                          const SizedBox(height: 10),
+
+                          CustomTextField(
+                            label: 'Description',
+                            hintText: 'Describe the concern in detail...',
+                            controller: _descriptionController,
+                            keyboardType: TextInputType.multiline,
+                          ),
+                          const SizedBox(height: 10),
+
+                          CustomDropdownField2(
+                            label: 'Priority',
+                            items: _priorities,
+                            value: _selectedPriority,
+                            hintText: 'Select priority',
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedPriority = value;
+                              });
+                            },
+                          ),
+
+                          const SizedBox(height: 24),
+
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: _submitForm,
+                              style: ElevatedButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                backgroundColor: AppColors.primary,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 6,
+                                  horizontal: 12,
+                                ),
+                                minimumSize: const Size(0, 40),
+                                tapTargetSize:
+                                    MaterialTapTargetSize.shrinkWrap,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                              child: const Text(
+                                'Submit Concern',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

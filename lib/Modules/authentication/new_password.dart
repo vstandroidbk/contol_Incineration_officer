@@ -4,6 +4,8 @@ import 'package:contol_officer_app/Routes/app_routes.dart';
 import 'package:contol_officer_app/utils/colors.dart';
 import 'package:contol_officer_app/utils/validation.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 
 class CreateNewPasswordScreen extends StatefulWidget {
   const CreateNewPasswordScreen({super.key});
@@ -24,8 +26,9 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
 
   void _validateAndSubmit() {
     setState(() {
-      newPasswordError =
-          ValidationUtil.validatePassword(newPasswordController.text);
+      newPasswordError = ValidationUtil.validatePassword(
+        newPasswordController.text,
+      );
       confirmPasswordError = ValidationUtil.validateConfirmPassword(
         newPasswordController.text,
         confirmPasswordController.text,
@@ -33,7 +36,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
     });
 
     if (newPasswordError == null && confirmPasswordError == null) {
-      Navigator.pushNamed(context, AppRoutes.login);
+      Get.offAllNamed(AppRoutes.login);
     }
   }
 
@@ -56,7 +59,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                   Text(
                     "Create new Password",
                     style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 18,
                       fontWeight: FontWeight.w600,
                       color: AppColors.textColor,
                     ),
@@ -67,7 +70,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                     child: Text(
                       "To reset your password, please enter the New Password.",
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 14,
                         color: AppColors.lighttextColor,
                         fontWeight: FontWeight.w500,
                       ),
@@ -87,7 +90,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                         _obscureText = !_obscureText;
                       });
                     },
-                    errorText: newPasswordError, // 👈 show error
+                    errorText: newPasswordError, // show error
                   ),
                   const SizedBox(height: 10),
                   CustomTextField(
@@ -101,7 +104,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                         _obscureText = !_obscureText;
                       });
                     },
-                    errorText: confirmPasswordError, // 👈 show error
+                    errorText: confirmPasswordError, // show error
                   ),
 
                   const SizedBox(height: 25),
@@ -109,7 +112,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                     children: [
                       Expanded(
                         child: OutlinedButton(
-                           style: OutlinedButton.styleFrom(
+                          style: OutlinedButton.styleFrom(
                             side: const BorderSide(
                               color: AppColors.textfieldBorder,
                             ),
@@ -123,14 +126,14 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                               borderRadius: BorderRadius.circular(20),
                             ),
                           ),
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () => Get.back(),
                           child: const Text("Back"),
                         ),
                       ),
                       const SizedBox(width: 5),
                       Expanded(
                         child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
+                          style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
                             foregroundColor: Colors.white,
                             textStyle: const TextStyle(

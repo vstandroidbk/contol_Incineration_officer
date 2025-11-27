@@ -4,7 +4,9 @@ import 'package:contol_officer_app/ReusableWidgets/navbar.dart';
 import 'package:contol_officer_app/ReusableWidgets/profileHeader.dart';
 import 'package:contol_officer_app/Routes/app_routes.dart';
 import 'package:contol_officer_app/utils/colors.dart';
+import 'package:contol_officer_app/utils/dialogBox.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class Profile extends StatefulWidget {
@@ -23,7 +25,7 @@ class _ProfileState extends State<Profile> {
     "Nagpur",
     "Aurangabad",
   ];
- bool isLoading = true;
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -45,7 +47,7 @@ class _ProfileState extends State<Profile> {
       extendBody: true,
       appBar: CustomAppBar(title: ""),
       body: LoaderWrapper(
-          isLoading: isLoading,
+        isLoading: isLoading,
         shimmerItems: 10,
         showCard: true,
         child: SafeArea(
@@ -64,7 +66,7 @@ class _ProfileState extends State<Profile> {
                   children: [Profileheader()],
                 ),
               ),
-        
+
               // Expanded scrollable section after status container
               Expanded(
                 child: Padding(
@@ -133,7 +135,7 @@ class _ProfileState extends State<Profile> {
                           ],
                         ),
                         const SizedBox(height: 24),
-        
+
                         // Contact Information Container
                         _InfoSectionContainer(
                           title: "Contact Information",
@@ -153,9 +155,9 @@ class _ProfileState extends State<Profile> {
                             ],
                           ),
                         ),
-        
+
                         const SizedBox(height: 16),
-        
+
                         // Assigned Region Container
                         _InfoSectionContainer(
                           title: "Assigned Region",
@@ -170,7 +172,7 @@ class _ProfileState extends State<Profile> {
                                       color: AppColors.primary,
                                       borderRadius: BorderRadius.circular(12),
                                     ),
-        
+
                                     child: Icon(
                                       LucideIcons.mapPin,
                                       color: Colors.white,
@@ -178,7 +180,8 @@ class _ProfileState extends State<Profile> {
                                   ),
                                   const SizedBox(width: 8),
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         "North Maharashtra",
@@ -188,7 +191,7 @@ class _ProfileState extends State<Profile> {
                                           color: AppColors.bodytextColor,
                                         ),
                                       ),
-        
+
                                       Text(
                                         "5 Districts",
                                         style: TextStyle(
@@ -202,21 +205,23 @@ class _ProfileState extends State<Profile> {
                                   ),
                                 ],
                               ),
-        
+
                               const SizedBox(height: 8),
-        
+
                               Text(
                                 "Assigned Districts:",
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: AppColors.bodytextColor.withOpacity(0.6),
+                                  color: AppColors.bodytextColor.withOpacity(
+                                    0.6,
+                                  ),
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
                               const SizedBox(height: 2),
                               const Divider(color: AppColors.textfieldBorder),
                               const SizedBox(height: 8),
-        
+
                               Wrap(
                                 spacing: 8,
                                 runSpacing: 6,
@@ -231,11 +236,12 @@ class _ProfileState extends State<Profile> {
                                           color: AppColors.primary.withOpacity(
                                             0.1,
                                           ),
-                                          borderRadius: BorderRadius.circular(20),
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
                                           border: Border.all(
-                                            color: AppColors.primary.withOpacity(
-                                              0.2,
-                                            ),
+                                            color: AppColors.primary
+                                                .withOpacity(0.2),
                                           ),
                                         ),
                                         child: Text(
@@ -253,9 +259,9 @@ class _ProfileState extends State<Profile> {
                             ],
                           ),
                         ),
-        
+
                         const SizedBox(height: 16),
-        
+
                         // Employment Details Container
                         _InfoSectionContainer(
                           title: "Employment Details",
@@ -272,7 +278,7 @@ class _ProfileState extends State<Profile> {
                                       ),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
-        
+
                                     child: Icon(
                                       LucideIcons.calendar,
                                       color: AppColors.Container4,
@@ -280,7 +286,8 @@ class _ProfileState extends State<Profile> {
                                   ),
                                   const SizedBox(width: 8),
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         "Join Date",
@@ -317,7 +324,8 @@ class _ProfileState extends State<Profile> {
                                     horizontal: 12,
                                   ),
                                   minimumSize: const Size(0, 32),
-                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  tapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
@@ -333,10 +341,7 @@ class _ProfileState extends State<Profile> {
                             Expanded(
                               child: OutlinedButton(
                                 onPressed: () {
-                                  Navigator.pushNamed(
-                                    context,
-                                    AppRoutes.editProfile,
-                                  );
+                                  Get.toNamed(AppRoutes.editProfile);
                                 },
                                 style: OutlinedButton.styleFrom(
                                   foregroundColor: AppColors.bodytextColor,
@@ -348,12 +353,13 @@ class _ProfileState extends State<Profile> {
                                     horizontal: 12,
                                   ),
                                   minimumSize: const Size(0, 40),
-                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  tapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                 ),
-        
+
                                 child: const Text("Edit Profile"),
                               ),
                             ),
@@ -361,11 +367,16 @@ class _ProfileState extends State<Profile> {
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: () {
-                                  Navigator.pushNamedAndRemoveUntil(
-                                    context,
-                                    AppRoutes.login, // your login route
-                                    (route) =>
-                                        false, // removes all previous routes
+                                  CustomDialog.show(
+                                    title: "Logout",
+                                    textColor: Colors.red,
+                                    message: "Are you sure you want to logout?",
+                                    confirmText: "Yes, Logout",
+                                    cancelText: "Cancel",
+                                    onConfirm: () {
+                                      print("User Logged Out");
+                                      Get.offAllNamed(AppRoutes.login);
+                                    },
                                   );
                                 },
                                 style: ElevatedButton.styleFrom(
@@ -376,18 +387,19 @@ class _ProfileState extends State<Profile> {
                                     horizontal: 12,
                                   ),
                                   minimumSize: const Size(0, 40),
-                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  tapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                 ),
-        
-                                child: const Text("Log Out"),
+
+                                child: const Text("LogOut"),
                               ),
                             ),
                           ],
                         ),
-        
+
                         const SizedBox(
                           height: 20,
                         ), // Extra bottom padding for scroll
@@ -401,7 +413,7 @@ class _ProfileState extends State<Profile> {
         ),
       ),
 
-      bottomNavigationBar: BottomNavBarDesign(),
+     
     );
   }
 }
@@ -539,8 +551,8 @@ class _StatusContainer extends StatelessWidget {
                 '$count',
                 style: TextStyle(
                   color: textColor,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
                 ),
               ),
               const SizedBox(height: 6),
@@ -548,8 +560,8 @@ class _StatusContainer extends StatelessWidget {
                 label,
                 style: TextStyle(
                   color: AppColors.bodytextColor.withOpacity(0.6),
-                  fontWeight: FontWeight.w500,
-                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
                 ),
               ),
             ],

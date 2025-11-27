@@ -92,7 +92,8 @@ class ManifestCard extends StatelessWidget {
                 child: Text(
                   city,
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
                     color: AppColors.bodytextColor.withOpacity(0.6),
                   ),
                 ),
@@ -103,7 +104,8 @@ class ManifestCard extends StatelessWidget {
               Text(
                 date,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
                   color: AppColors.bodytextColor.withOpacity(0.6),
                 ),
               ),
@@ -129,7 +131,7 @@ class ManifestCard extends StatelessWidget {
                           backgroundColor: AppColors.primary,
                           padding: const EdgeInsets.symmetric(
                             vertical: 6,
-                            horizontal: 12,
+                            horizontal: 8,
                           ),
                           minimumSize: const Size(0, 36),
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -152,7 +154,7 @@ class ManifestCard extends StatelessWidget {
                           ),
                           padding: const EdgeInsets.symmetric(
                             vertical: 6,
-                            horizontal: 12,
+                            horizontal: 8,
                           ),
                           minimumSize: const Size(0, 36),
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,

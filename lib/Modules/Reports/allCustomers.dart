@@ -18,10 +18,10 @@ class _AllcustomersState extends State<Allcustomers> {
         const Text(
           "All Customers",
           style: TextStyle(
-            fontWeight: FontWeight.w700,
-            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
             color: AppColors.bodytextColor,
-            letterSpacing: .5,
+          
           ),
         ),
         const SizedBox(height: 10),

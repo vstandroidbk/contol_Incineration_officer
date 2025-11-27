@@ -1,5 +1,7 @@
 import 'package:contol_officer_app/utils/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Color backgroundColor;
@@ -68,7 +70,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   children: [
                     if (showBack) ...[
                       GestureDetector(
-                        onTap: onBackTap ?? () => Navigator.pop(context),
+                        onTap: onBackTap ?? () => Get.back(),
                         child: const Icon(
                           Icons.arrow_back_ios_new,
                           size: 18,
@@ -88,7 +90,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                                   title!,
                                   style: const TextStyle(
                                     fontSize: 18,
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight: FontWeight.w600,
                                     color: AppColors.bodytextColor,
                                   ),
                                 ),
@@ -109,7 +111,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w600,
                                 color: AppColors.bodytextColor,
                               ),
                             ),

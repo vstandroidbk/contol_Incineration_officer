@@ -1,6 +1,8 @@
 import 'package:contol_officer_app/Routes/app_routes.dart';
 import 'package:contol_officer_app/utils/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class Profileheader extends StatelessWidget {
@@ -21,9 +23,7 @@ class Profileheader extends StatelessWidget {
       child: Stack(
         alignment: Alignment.topCenter,
         children: [
-          // ================================
           // CLIPPED HEADER BACKGROUND
-          // ================================
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Stack(
@@ -36,9 +36,7 @@ class Profileheader extends StatelessWidget {
                   color: AppColors.gradient1.withOpacity(0.88),
                 ),
 
-                // ======================================================
                 // LEFT SIDE CIRCLES
-                // ======================================================
                 Positioned(
                   left: -40,
                   top: headerHeight * 0.4,
@@ -51,9 +49,7 @@ class Profileheader extends StatelessWidget {
                   child: _circle(size: screenWidth * 0.4, opacity: 0.56),
                 ),
 
-                // ======================================================
                 // RIGHT SIDE CIRCLES
-                // ======================================================
                 Positioned(
                   right: 10,
                   top: headerHeight * -0.2,
@@ -78,7 +74,7 @@ class Profileheader extends StatelessWidget {
                   right: 12,
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      Navigator.pushNamed(context, AppRoutes.editProfile);
+                      Get.toNamed(AppRoutes.editProfile);
                     },
                     icon: const Icon(
                       LucideIcons.edit,
@@ -112,9 +108,7 @@ class Profileheader extends StatelessWidget {
             ),
           ),
 
-          // ======================================================
           // PROFILE IMAGE (CENTER BOTTOM — OUTSIDE HEADER)
-          // ======================================================
           Positioned(
             bottom: 25,
             child: CircleAvatar(

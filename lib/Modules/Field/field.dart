@@ -38,7 +38,7 @@ class _FieldState extends State<Field> {
         title: "Field Reporting",
         subtitle: "Create & manage on-field Reports",
         rightWidget: SizedBox(
-          width: 90,
+          width: 100,
           child: ElevatedButton.icon(
             onPressed: () {},
             icon: Icon(LucideIcons.plus, color: Colors.white, size: 18),
@@ -52,7 +52,7 @@ class _FieldState extends State<Field> {
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
               minimumSize: const Size(0, 36),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(25),
@@ -98,7 +98,7 @@ class _FieldState extends State<Field> {
         ],
             ),
         
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
         
             const Text(
         "Assigned Manifests",
@@ -109,7 +109,7 @@ class _FieldState extends State<Field> {
         ),
             ),
         
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
         
             Expanded(
         child: ListView(
@@ -150,7 +150,7 @@ class _FieldState extends State<Field> {
           )
            ),
       ),
-         bottomNavigationBar: BottomNavBarDesign(),
+      
          
     );
   }
@@ -192,7 +192,7 @@ class _StatusContainer extends StatelessWidget {
                 style: TextStyle(
                   color: textColor,
                   fontWeight: FontWeight.bold,
-                  fontSize: 22,
+                  fontSize: 18,
                 ),
               ),
               const SizedBox(width: 6),
@@ -201,7 +201,7 @@ class _StatusContainer extends StatelessWidget {
                 style: TextStyle(
                   color: AppColors.bodytextColor.withOpacity(0.6),
                   fontWeight: FontWeight.w600,
-                  fontSize: 16,
+                  fontSize: 14,
                 ),
               ),
             ],

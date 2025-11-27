@@ -46,7 +46,7 @@ class RecentActivityItem extends StatelessWidget {
                     color: AppColors.bodytextColor,
                   ),
                 ),
-                const SizedBox(height: 3),
+                const SizedBox(height: 2),
                 Text(
                   subtitle,
                   style: TextStyle(

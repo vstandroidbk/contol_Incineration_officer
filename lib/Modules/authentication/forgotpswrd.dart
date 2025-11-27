@@ -4,6 +4,8 @@ import 'package:contol_officer_app/Routes/app_routes.dart';
 import 'package:contol_officer_app/utils/colors.dart';
 import 'package:contol_officer_app/utils/validation.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -26,7 +28,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
     if (error == null) {
       // ✅ Valid email, proceed
-      Navigator.pushNamed(context, AppRoutes.emailVerification);
+      Get.toNamed(AppRoutes.emailVerification);
     } else {
       // ❌ Invalid, show snackbar too for feedback
       ScaffoldMessenger.of(context).showSnackBar(
@@ -60,7 +62,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         Text(
                           "Forgot",
                           style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 18,
                             fontWeight: FontWeight.w500,
                             color: AppColors.textColor,
                           ),
@@ -68,7 +70,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         Text(
                           "Forgot your account password",
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 14,
                             color: AppColors.lighttextColor,
                             fontWeight: FontWeight.w500,
                           ),
@@ -109,7 +111,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               borderRadius: BorderRadius.circular(20),
                             ),
                           ),
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () => Get.back(),
                           child: const Text("Back"),
                         ),
                       ),

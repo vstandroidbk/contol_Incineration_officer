@@ -1,12 +1,13 @@
+import 'package:contol_officer_app/Controller/navBar_controller.dart';
 import 'package:contol_officer_app/Modules/Home/quickAction.dart';
 import 'package:contol_officer_app/Modules/Home/recentActivities.dart';
 import 'package:contol_officer_app/Modules/Home/statsCard.dart';
 import 'package:contol_officer_app/Modules/Home/upcomingTasks.dart';
 import 'package:contol_officer_app/ReusableWidgets/loader.dart';
-import 'package:contol_officer_app/ReusableWidgets/navbar.dart';
 import 'package:contol_officer_app/Routes/app_routes.dart';
 import 'package:contol_officer_app/utils/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class Homeview extends StatefulWidget {
@@ -50,14 +51,14 @@ class _HomeviewState extends State<Homeview> {
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(20),
-                  bottomRight: Radius.circular(20),
+                  bottomLeft: Radius.circular(22),
+                  bottomRight: Radius.circular(22),
                 ),
               ),
               padding: const EdgeInsets.only(
                 left: 20,
                 right: 20,
-                top: 60,
+                top: 40,
                 bottom: 20,
               ),
               child: Column(
@@ -81,15 +82,12 @@ class _HomeviewState extends State<Homeview> {
                         children: [
                           InkWell(
                             onTap: () {
-                              Navigator.pushNamed(
-                                context,
-                                AppRoutes.notifications,
-                              );
+                              Get.toNamed(AppRoutes.notifications);
                             },
                             child: Icon(
                               LucideIcons.bell,
                               color: Colors.white,
-                              size: 24,
+                              size: 28,
                             ),
                           ),
                           const SizedBox(width: 15),
@@ -104,7 +102,7 @@ class _HomeviewState extends State<Homeview> {
                     ],
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
 
                   // 🔹 Welcome Text
                   Text(
@@ -112,14 +110,14 @@ class _HomeviewState extends State<Homeview> {
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                   Text(
                     "Officer Rajesh Kumar",
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 24,
+                      fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -132,13 +130,14 @@ class _HomeviewState extends State<Homeview> {
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
               ),
             ),
 
+            const SizedBox(height: 10),
             //after top container
             Expanded(
               child: SingleChildScrollView(
@@ -149,7 +148,7 @@ class _HomeviewState extends State<Homeview> {
                     // Stats Grid
                     const StatsGrid(),
 
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
 
                     //quick action
                     const Text(
@@ -160,14 +159,15 @@ class _HomeviewState extends State<Homeview> {
                         color: AppColors.bodytextColor,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 10),
                     QuickActionsGrid(
                       actions: [
                         {
                           "label": "View Reports",
                           "icon": LucideIcons.clipboard,
                           "onTap": () {
-                            Navigator.pushNamed(context, AppRoutes.reports);
+                            final nav = Get.find<BottomNavBarController>();
+                            nav.changeTab(1); // Reports tab index
                           },
                           "BgColor": AppColors.Container4,
                         },
@@ -175,7 +175,8 @@ class _HomeviewState extends State<Homeview> {
                           "label": "Raise Concern",
                           "icon": LucideIcons.alertTriangle,
                           "onTap": () {
-                            Navigator.pushNamed(context, AppRoutes.concern);
+                            final nav = Get.find<BottomNavBarController>();
+                            nav.changeTab(2);
                           },
                           "BgColor": AppColors.primary,
                         },
@@ -183,7 +184,8 @@ class _HomeviewState extends State<Homeview> {
                           "label": "Field Report",
                           "icon": LucideIcons.trendingUp,
                           "onTap": () {
-                            Navigator.pushNamed(context, AppRoutes.field);
+                             final nav = Get.find<BottomNavBarController>();
+                            nav.changeTab(3);
                           },
                           "BgColor": AppColors.secondary,
                         },
@@ -191,14 +193,15 @@ class _HomeviewState extends State<Homeview> {
                           "label": "District View",
                           "icon": LucideIcons.landmark,
                           "onTap": () {
-                            Navigator.pushNamed(context, AppRoutes.reports);
+                             final nav = Get.find<BottomNavBarController>();
+                            nav.changeTab(1);
                           },
                           "BgColor": AppColors.Container5.withOpacity(0.8),
                         },
                       ],
                     ),
 
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
                     const Text(
                       "Upcoming Tasks",
                       style: TextStyle(
@@ -207,7 +210,7 @@ class _HomeviewState extends State<Homeview> {
                         color: AppColors.bodytextColor,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 10),
 
                     const UpcomingTasksList(),
                     const SizedBox(height: 10),
@@ -230,7 +233,6 @@ class _HomeviewState extends State<Homeview> {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavBarDesign(),
     );
   }
 }

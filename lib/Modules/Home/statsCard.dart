@@ -36,7 +36,7 @@ class StatCardItem extends StatelessWidget {
               offset: Offset(0, 2),
             ),
           ],
-          border: Border.all(color: AppColors.textfieldBorder,width: 1)
+          border: Border.all(color: AppColors.textfieldBorder, width: 1),
         ),
         child: Row(
           children: [
@@ -56,13 +56,17 @@ class StatCardItem extends StatelessWidget {
                 Text(
                   count,
                   style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
                   ),
                 ),
                 Text(
                   label,
-                  style: const TextStyle(fontSize: 14, color: Colors.black54),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.bodytextColor.withOpacity(0.6),
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),
@@ -72,6 +76,7 @@ class StatCardItem extends StatelessWidget {
     );
   }
 }
+
 class StatsGrid extends StatelessWidget {
   const StatsGrid({super.key});
 
