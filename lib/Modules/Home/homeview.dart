@@ -19,6 +19,7 @@ class Homeview extends StatefulWidget {
 
 class _HomeviewState extends State<Homeview> {
   bool isLoading = true;
+  int notificationCount = 10;
 
   @override
   void initState() {
@@ -84,10 +85,24 @@ class _HomeviewState extends State<Homeview> {
                             onTap: () {
                               Get.toNamed(AppRoutes.notifications);
                             },
-                            child: Icon(
-                              LucideIcons.bell,
-                              color: Colors.white,
-                              size: 28,
+                            child: Badge(
+                              backgroundColor: Colors.white,
+                              alignment: Alignment.topRight,
+                              label: Text(
+                                notificationCount > 9
+                                    ? '9+'
+                                    : notificationCount.toString(),
+                                style: TextStyle(
+                                  color:AppColors.primary,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              child: Icon(
+                                LucideIcons.bell,
+                                color: Colors.white,
+                                size: 28,
+                              ),
                             ),
                           ),
                           const SizedBox(width: 15),
@@ -184,7 +199,7 @@ class _HomeviewState extends State<Homeview> {
                           "label": "Field Report",
                           "icon": LucideIcons.trendingUp,
                           "onTap": () {
-                             final nav = Get.find<BottomNavBarController>();
+                            final nav = Get.find<BottomNavBarController>();
                             nav.changeTab(3);
                           },
                           "BgColor": AppColors.secondary,
@@ -193,7 +208,7 @@ class _HomeviewState extends State<Homeview> {
                           "label": "District View",
                           "icon": LucideIcons.landmark,
                           "onTap": () {
-                             final nav = Get.find<BottomNavBarController>();
+                            final nav = Get.find<BottomNavBarController>();
                             nav.changeTab(1);
                           },
                           "BgColor": AppColors.Container5.withOpacity(0.8),

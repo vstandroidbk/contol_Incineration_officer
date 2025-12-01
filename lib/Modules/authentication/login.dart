@@ -1,4 +1,6 @@
+import 'package:contol_officer_app/Controller/navBar_controller.dart';
 import 'package:contol_officer_app/ReusableWidgets/authHeader.dart';
+import 'package:contol_officer_app/ReusableWidgets/snackbar.dart';
 import 'package:contol_officer_app/ReusableWidgets/textField.dart';
 import 'package:contol_officer_app/Routes/app_routes.dart';
 import 'package:contol_officer_app/utils/colors.dart';
@@ -37,16 +39,17 @@ class _LoginScreenState extends State<LoginScreen> {
     //   // ✅ All validations passed
     //   if (!mounted) return; // extra safety
 
-    //   //Show snack bar first
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     const SnackBar(content: Text("Login successful!")),
-    //   );
-
+    // Show snack bar first
+    AppSnackBar.success(
+      message: "Login successful!",
+      duration: 3, 
+    );
+    // ⭐ Reset bottom nav to Home tab
+    Get.find<BottomNavBarController>().changeTab(0);
     // Navigate after a short delay
     Future.delayed(const Duration(milliseconds: 600), () {
       if (!mounted) return; // check if widget still exists
-    Get.offAllNamed(AppRoutes.dashboard);
-
+      Get.offAllNamed(AppRoutes.dashboard);
     });
     // }
   }
