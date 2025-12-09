@@ -238,7 +238,7 @@ class _MembershipFormState extends State<MembershipForm> {
                       children: [
                         _buildBasicDetailsStep(formKey: _formKeys[0]),
                         _buildIndustryDetailsStep(formKey: _formKeys[1]),
-                        _buildHazardousWasteStep(formKey: _formKeys[2]),
+                        _buildHazardousWasteStep(formKey: _formKeys[2]) ,
                         _buildDeclarationStep(formKey: _formKeys[3]) ,
                       ],
                     ),
