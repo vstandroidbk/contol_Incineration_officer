@@ -14,6 +14,8 @@ class CustomTextField extends StatelessWidget {
   final Color focusedBorderColor;
   final String? errorText;
   final bool enabled;
+  final bool readOnly;  // NEW
+  final VoidCallback? onTap;  // NEW
 
   const CustomTextField({
     super.key,
@@ -29,6 +31,8 @@ class CustomTextField extends StatelessWidget {
     this.focusedBorderColor = const Color(0xFF4A90E2),
     this.errorText,
     this.enabled = true,
+    this.readOnly = false,  // NEW - default false
+    this.onTap,  // NEW
   });
 
   @override
@@ -46,6 +50,7 @@ class CustomTextField extends StatelessWidget {
         const SizedBox(height: 6),
 
         Container(
+          height: MediaQuery.of(context).size.height*0.047,
           decoration: BoxDecoration(
             border: Border.all(
               color: hasError ? Colors.red : borderColor,
@@ -57,8 +62,9 @@ class CustomTextField extends StatelessWidget {
             controller: controller,
             keyboardType: keyboardType,
             obscureText: isPassword ? obscureText : false,
-            enabled: enabled, // ← LOCK FIELD
-            readOnly: !enabled,
+            enabled: enabled,
+            readOnly: readOnly,  // NEW - use the parameter
+            onTap: onTap,  // NEW - use the parameter
 
             /// BIGGER TEXT AREA FOR MULTILINE
             minLines: isMultiline ? 2 : 1,
@@ -73,19 +79,19 @@ class CustomTextField extends StatelessWidget {
               ),
               suffixIcon: isPassword
                   ? IconButton(
-                      icon: Icon(
-                        obscureText
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                        color: AppColors.lighttextColor,
-                      ),
-                      onPressed: onToggleVisibility,
-                    )
+                icon: Icon(
+                  obscureText
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                  color: AppColors.lighttextColor,
+                ),
+                onPressed: onToggleVisibility,
+              )
                   : null,
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
+                  horizontal: 16,
+                  vertical: 13
               ),
             ),
           ),

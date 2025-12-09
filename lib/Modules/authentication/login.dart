@@ -1,4 +1,5 @@
 import 'package:contol_officer_app/Controller/navBar_controller.dart';
+import 'package:contol_officer_app/Modules/membership_form.dart';
 import 'package:contol_officer_app/ReusableWidgets/authHeader.dart';
 import 'package:contol_officer_app/ReusableWidgets/snackbar.dart';
 import 'package:contol_officer_app/ReusableWidgets/textField.dart';
@@ -40,17 +41,14 @@ class _LoginScreenState extends State<LoginScreen> {
     //   if (!mounted) return; // extra safety
 
     // Show snack bar first
-    AppSnackBar.success(
-      message: "Login successful!",
-      duration: 3, 
-    );
+    // AppSnackBar.success(
+    //   message: "Login successful!",
+    //   duration: 3,
+    // );
     // ⭐ Reset bottom nav to Home tab
-    Get.find<BottomNavBarController>().changeTab(0);
+    // Get.find<BottomNavBarController>().changeTab(0);
     // Navigate after a short delay
-    Future.delayed(const Duration(milliseconds: 600), () {
-      if (!mounted) return; // check if widget still exists
-      Get.offAllNamed(AppRoutes.dashboard);
-    });
+    Navigator.push(context, MaterialPageRoute(builder: (context)=> MembershipForm()));
     // }
   }
 
