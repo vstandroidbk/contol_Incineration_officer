@@ -5,7 +5,7 @@ class AppColors {
   static const Color secondary = Color(0xffF8A61B);
 
   //bg color
-  static const Color bgColor = Color(0xff050A1E0D);
+  static const Color bgColor = Color(0xff0A1E0D);
   static const Color tabBarColor = Color(0xffEBEBF0);
 
   //gradient
@@ -26,9 +26,9 @@ class AppColors {
   static const Color textfieldBorder = Color(0xffD9D9D9);
 
   //container
-  static const Color Container1 = Color(0xff0C8848);
-  static const Color Container2 = Color(0xffF8A61B);
-  static const Color Container3 = Color(0xffFFD000);
-  static const Color Container4 = Color(0xff2C3093);
-  static const Color Container5 = Color(0xff050A1E);
+  static const Color container1 = Color(0xff0C8848);
+  static const Color container2 = Color(0xffF8A61B);
+  static const Color container3 = Color(0xffFFD000);
+  static const Color container4 = Color(0xff2C3093);
+  static const Color container5 = Color(0xff050A1E);
 }

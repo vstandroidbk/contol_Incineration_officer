@@ -1,18 +1,18 @@
-import 'package:contol_officer_app/Controller/navBar_controller.dart';
+import 'package:contol_officer_app/API%20Service/apiClient.dart';
+import 'package:contol_officer_app/Controller/Nav/navbar_controller.dart';
 import 'package:contol_officer_app/Routes/app_routes.dart';
 import 'package:contol_officer_app/Routes/route_screens.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/src/root/get_material_app.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  final apiClient = await Get.putAsync(() => ApiClient().init());
 
   // 👇 Register controller globally (won't rebuild, reused everywhere)
   Get.put(BottomNavBarController(), permanent: true);
   runApp(const MyApp());
-  
 }
 
 class MyApp extends StatelessWidget {
@@ -22,14 +22,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-       title: 'Contol Officer App',
+      title: 'Contol Officer App',
       debugShowCheckedModeBanner: false,
-       theme: ThemeData(
+      theme: ThemeData(
         fontFamily: "Manrope", // Apply custom font globally
       ),
 
-     
-      initialRoute: AppRoutes.login,
+      initialRoute: AppRoutes.splash,
       getPages: AppPages.routes,
     );
   }

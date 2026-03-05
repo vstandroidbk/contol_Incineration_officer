@@ -53,13 +53,31 @@ class ValidationUtil {
     return null;
   }
 
+   static String? validatePasswordonly(String value) {
+    if (value.isEmpty) {
+      return "Password is required";
+    }
+
+    if (value.length < 8) {
+      return "Password must be at least 8 characters";
+    }
+
+    if (!RegExp(r'[A-Z]').hasMatch(value) ||
+        !RegExp(r'[0-9]').hasMatch(value) ||
+        !RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
+      return "Password must contain at least one uppercase letter, one numeric, one special character.";
+    }
+
+    return null;
+  }
+
   /// Confirms passwords match
-  static String? validateConfirmPassword(String password, String confirmPassword) {
+  static String? validateConfirmPassword(
+    String password,
+    String confirmPassword,
+  ) {
     if (confirmPassword.isEmpty) return "Confirm Password is required";
     if (password != confirmPassword) return "Passwords do not match";
     return null;
   }
-
-
-
 }

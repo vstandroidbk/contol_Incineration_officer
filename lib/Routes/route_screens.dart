@@ -1,15 +1,17 @@
-import 'package:contol_officer_app/Modules/Concern/concern.dart';
-import 'package:contol_officer_app/Modules/Field/field.dart';
-import 'package:contol_officer_app/Modules/Home/homeview.dart';
-import 'package:contol_officer_app/Modules/Notifications/notifications.dart';
-import 'package:contol_officer_app/Modules/Reports/report.dart';
-import 'package:contol_officer_app/Modules/authentication/email_verifly.dart';
-import 'package:contol_officer_app/Modules/authentication/forgotpswrd.dart';
-import 'package:contol_officer_app/Modules/authentication/login.dart';
-import 'package:contol_officer_app/Modules/authentication/new_password.dart';
-import 'package:contol_officer_app/Modules/profile/editProfile.dart';
-import 'package:contol_officer_app/Modules/profile/profile.dart';
-import 'package:contol_officer_app/ReusableWidgets/mainNav.dart';
+import 'package:contol_officer_app/Bindings/authbinding.dart';
+import 'package:contol_officer_app/Splash/splashScreen.dart';
+import 'package:contol_officer_app/View/Concern/concern.dart';
+import 'package:contol_officer_app/View/Field/field.dart';
+import 'package:contol_officer_app/View/Home/homeview.dart';
+import 'package:contol_officer_app/View/Notifications/notifications.dart';
+import 'package:contol_officer_app/View/Reports/report.dart';
+import 'package:contol_officer_app/View/authentication/email_verify.dart';
+import 'package:contol_officer_app/View/authentication/forgotpswrd.dart';
+import 'package:contol_officer_app/View/authentication/login.dart';
+import 'package:contol_officer_app/View/authentication/new_password.dart';
+import 'package:contol_officer_app/View/profile/edit_profile.dart';
+import 'package:contol_officer_app/View/profile/profile.dart';
+import 'package:contol_officer_app/widgets/main_nav.dart';
 import 'package:contol_officer_app/Routes/app_routes.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
 
@@ -17,7 +19,7 @@ class AppPages {
   static final routes = <GetPage>[
     //authentication
   
-    GetPage(name: AppRoutes.login, page: () => const LoginScreen()),
+    GetPage(name: AppRoutes.login, page: () => const LoginScreen(),binding: AuthBinding()),
     GetPage(
       name: AppRoutes.forgotPassword,
       page: () => const ForgotPasswordScreen(),
@@ -30,6 +32,13 @@ class AppPages {
       name: AppRoutes.createNewPassword,
       page: () => const CreateNewPasswordScreen(),
     ),
+
+      GetPage(
+      name: AppRoutes.splash,
+      page: () => SplashScreen()
+    ),
+
+
 
  GetPage(
       name: AppRoutes.dashboard,

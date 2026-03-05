@@ -39,6 +39,10 @@ dependencies:
   shimmer: ^3.0.0
   dropdown_button2: ^2.3.9
   get: ^4.7.2
+  dio: ^5.9.0
+  top_snackbar_flutter: ^3.3.0
+  internet_connection_checker: ^1.0.0
+  shared_preferences: ^2.5.4
 
 dev_dependencies:
   flutter_test:
@@ -66,6 +70,7 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+    - assets/logo/
   fonts:
     - family: Manrope
       fonts:
