@@ -71,17 +71,14 @@ class AuthService {
   }
 
   /// 🔹 Reset password
- Future<Map<String, dynamic>> resetPassword({
-  required String userLoginDetail,
-  required String password,
-}) async {
-  return await _apiClient.post(
-    ApiUrls.resetPswrd,
-    attachUserId: false,
-    body: {
-      "userLoginDetail": userLoginDetail,
-      "newPassword": password,
-    },
-  );
-}
+  Future<Map<String, dynamic>> resetPassword({
+    required String userLoginDetail,
+    required String password,
+  }) async {
+    return await _apiClient.post(
+      ApiUrls.resetPswrd,
+      attachUserId: false,
+      body: {"userLoginDetail": userLoginDetail, "newPassword": password},
+    );
+  }
 }

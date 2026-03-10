@@ -6,7 +6,7 @@
 
     
     <application
-        android:label="contol_officer_app"
+        android:label="Incineration Officer Contol"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

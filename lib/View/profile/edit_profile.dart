@@ -147,7 +147,7 @@ class _EditprofileState extends State<Editprofile> {
             // Email
             CustomTextField(
               label: "Email",
-              hintText: "rajesh.kumar@controlincineration.com",
+              hintText: "rajesh.kumar@contolIncineration.com",
               controller: emailController,
               keyboardType: TextInputType.emailAddress,
               // enabled: false,
@@ -175,7 +175,7 @@ class _EditprofileState extends State<Editprofile> {
 
             const SizedBox(height: 10),
 
-            // Upload ID Card 
+            // Upload ID Card
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -192,7 +192,7 @@ class _EditprofileState extends State<Editprofile> {
                   ),
                   child: Row(
                     children: [
-                        //  UPLOAD BUTTON
+                      //  UPLOAD BUTTON
                       SizedBox(
                         height: 47,
                         child: ElevatedButton(
@@ -245,8 +245,6 @@ class _EditprofileState extends State<Editprofile> {
                           ),
                         ),
                       ),
-
-                    
                     ],
                   ),
                 ),

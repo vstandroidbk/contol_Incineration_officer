@@ -1,4 +1,5 @@
 import 'package:contol_officer_app/Controller/Auth/authController.dart';
+import 'package:contol_officer_app/utils/appSession.dart';
 import 'package:contol_officer_app/utils/snackbar.dart';
 import 'package:contol_officer_app/widgets/auth_header.dart';
 import 'package:contol_officer_app/widgets/text_field.dart';
@@ -30,13 +31,13 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
 
   //api controller
   final AuthController _authController = Get.find<AuthController>();
- late final String userLoginDetail;
+  late final String userLoginDetail;
 
-@override
-void initState() {
-  super.initState();
-  userLoginDetail = Get.arguments?["userLoginDetail"] ?? "";
-}
+  @override
+  void initState() {
+    super.initState();
+    userLoginDetail = Get.arguments?["userLoginDetail"] ?? "";
+  }
 
   @override
   void dispose() {
@@ -57,6 +58,8 @@ void initState() {
 
     if (res["status"] == "SUCCESS") {
       AppSnackBar.success(context: context, message: res["message"]);
+
+      AppSession.logout();
 
       // 🔥 Go back to login & clear stack
       Get.offAllNamed(AppRoutes.login);
@@ -117,10 +120,8 @@ void initState() {
                       obscureText: !showNew,
                       onToggleVisibility: () =>
                           setState(() => showNew = !showNew),
-                      validator: (v) => ValidationUtil.validatePasswordonly(
-                        v ?? '',
-                        
-                      ),
+                      validator: (v) =>
+                          ValidationUtil.validatePasswordonly(v ?? ''),
                       errorText: newPasswordError, // 👈 show error
                     ),
                     const SizedBox(height: 10),

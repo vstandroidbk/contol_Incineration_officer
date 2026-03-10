@@ -47,9 +47,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
     // ⛔ Validation failed → SHOW SNACKBAR + STOP
     if (usernameError != null || passwordError != null) {
+      final bothEmpty = usernameError != null && passwordError != null;
       AppSnackBar.error(
         context: context,
-        message: usernameError ?? passwordError!,
+        message: bothEmpty
+            ? "Username and Password are required."
+            : usernameError ?? passwordError!,
       );
       return;
     }
