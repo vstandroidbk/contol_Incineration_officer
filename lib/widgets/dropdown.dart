@@ -120,7 +120,7 @@ class CustomDropdownField extends StatelessWidget {
   }
 }
 
-/// New CustomDropdownField2
+/// New CustomDropdownField2 — now with a search box inside the dropdown menu
 class CustomDropdownField2 extends StatelessWidget {
   final String label;
   final String? value;
@@ -129,6 +129,8 @@ class CustomDropdownField2 extends StatelessWidget {
   final String? errorText;
   final String hintText;
   final bool enabled;
+  final bool searchable;
+  final String searchHintText;
 
   const CustomDropdownField2({
     super.key,
@@ -139,6 +141,8 @@ class CustomDropdownField2 extends StatelessWidget {
     this.errorText,
     this.hintText = 'Select',
     this.enabled = true,
+    this.searchable = false,
+    this.searchHintText = 'Search...',
   });
 
   @override
@@ -212,18 +216,81 @@ class CustomDropdownField2 extends StatelessWidget {
           ),
 
           dropdownStyleData: DropdownStyleData(
-            maxHeight: 250,
+            maxHeight: 300,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
             ),
             elevation: 2,
+            offset: const Offset(0, -4),
           ),
 
           menuItemStyleData: const MenuItemStyleData(
             height: 42,
             padding: EdgeInsets.symmetric(horizontal: 12),
           ),
+
+          // ── Search box inside the dropdown ──────────────────────
+          dropdownSearchData: searchable
+              ? DropdownSearchData<String>(
+                  searchController: TextEditingController(),
+                  searchInnerWidgetHeight: 60,
+                  searchInnerWidget: Container(
+                    height: 60,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    child: TextFormField(
+                      autofocus: true,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        hintText: searchHintText,
+                        hintStyle: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.bodytextColor.withOpacity(0.5),
+                        ),
+                        prefixIcon: const Icon(Icons.search, size: 18),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                            color: AppColors.textfieldBorder,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                            color: AppColors.textfieldBorder,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                            color: AppColors.primary,
+                            width: 1.4,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  searchMatchFn: (item, searchValue) {
+                    return item.value.toString().toLowerCase().contains(
+                      searchValue.toLowerCase(),
+                    );
+                  },
+                )
+              : null,
+
+          // Clears the search field state whenever the menu closes
+          onMenuStateChange: (isOpen) {
+            if (!isOpen) {
+              // no-op placeholder; dropdown_button2 resets search internally
+            }
+          },
 
           items: items
               .map(

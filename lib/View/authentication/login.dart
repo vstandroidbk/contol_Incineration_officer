@@ -9,7 +9,7 @@ import 'package:contol_officer_app/Routes/app_routes.dart';
 import 'package:contol_officer_app/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -28,70 +28,64 @@ class _LoginScreenState extends State<LoginScreen> {
   String? _usernameError;
   String? _passwordError;
 
-  void _validateAndLogin() async {
-    FocusScope.of(context).unfocus();
+ void _validateAndLogin() async {
+  FocusScope.of(context).unfocus();
 
-    final usernameError = ValidationUtil.validateRequired(
-      usernameController.text.trim(),
-      fieldName: "Username",
-    );
+  final usernameError = ValidationUtil.validateRequired(
+    usernameController.text.trim(),
+    fieldName: "Username",
+  );
 
-    final passwordError = ValidationUtil.validatePassword(
-      passwordController.text.trim(),
-    );
+  final passwordError = ValidationUtil.validatePassword(
+    passwordController.text.trim(),
+  );
 
-    setState(() {
-      _usernameError = usernameError;
-      _passwordError = passwordError;
-    });
+  setState(() {
+    _usernameError = usernameError;
+    _passwordError = passwordError;
+  });
 
-    // ⛔ Validation failed → SHOW SNACKBAR + STOP
-    if (usernameError != null || passwordError != null) {
-      final bothEmpty = usernameError != null && passwordError != null;
-      AppSnackBar.error(
-        context: context,
-        message: bothEmpty
-            ? "Username and Password are required."
-            : usernameError ?? passwordError!,
-      );
-      return;
-    }
-
-    // ✅ Check internet BEFORE calling API — single snackbar, no duplication
-    final hasInternet = await NetworkHelper.hasInternet();
-    if (!hasInternet) {
-      if (!mounted) return;
-      AppSnackBar.error(context: context, message: "No internet connection.");
-      return;
-    }
-
-    /// 🚀 Call Login API
-    final res = await _authController.login(
-      userLoginDetail: usernameController.text.trim(),
-      password: passwordController.text.trim(),
-    );
-
-    if (!mounted) return;
-
-    // 3️⃣ Backend failure → snackbar
-    if (res["status"] != "SUCCESS") {
-      AppSnackBar.error(
-        context: context,
-        message: res["message"] ?? "Invalid email or password",
-      );
-      return;
-    }
-
-    // 4️⃣ Success
-    AppSnackBar.success(
+  if (usernameError != null || passwordError != null) {
+    final bothEmpty = usernameError != null && passwordError != null;
+    AppSnackBar.error(
       context: context,
-      message: res["message"] ?? "Login successful",
+      message: bothEmpty
+          ? "Username and Password are required."
+          : usernameError ?? passwordError!,
     );
-
-    /// ✅ Login success → navigate
-    Get.find<BottomNavBarController>().changeTab(0);
-    Get.offAllNamed(AppRoutes.dashboard);
+    return;
   }
+
+  final hasInternet = await NetworkHelper.hasInternet();
+  if (!hasInternet) {
+    if (!mounted) return;
+    AppSnackBar.error(context: context, message: "No internet connection.");
+    return;
+  }
+
+  final res = await _authController.login(
+    userLoginDetail: usernameController.text.trim(),
+    password: passwordController.text.trim(),
+  );
+
+  if (!mounted) return;
+
+  if (res["status"] != "SUCCESS") {
+    AppSnackBar.error(
+      context: context,
+      message: res["message"] ?? "Invalid email or password",
+    );
+    return;
+  }
+
+  AppSnackBar.success(
+    context: context,
+    message: res["message"] ?? "Login successful",
+  );
+
+  Get.find<BottomNavBarController>().changeTab(0);
+  Get.offAllNamed(AppRoutes.dashboard);
+}
 
   @override
   Widget build(BuildContext context) {

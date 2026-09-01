@@ -99,31 +99,30 @@ class AuthController extends GetxController {
   }
 
   /// 🔐 Reset Password API
-  Future<Map<String, dynamic>> resetPassword({
-    required String userloginDetail,
-    required String password,
-  }) async {
-    try {
-      isLoading.value = true;
+ /// 🔐 Reset Password API
+Future<Map<String, dynamic>> resetPassword({
+  required String id,          // 👈 renamed from userloginDetail
+  required String password,
+}) async {
+  try {
+    isLoading.value = true;
 
-      final res = await _authService.resetPassword(
-        userLoginDetail: userloginDetail,
-        password: password,
-      );
+    final res = await _authService.resetPassword(
+      id: id,                  // 👈 pass through as id
+      password: password,
+    );
 
-      // 🖨️ DEBUG LOGS
-      print("🔁 RESET PASSWORD RESPONSE: $res");
-
-      return res;
-    } catch (e) {
-      print("❌ RESET PASSWORD ERROR: $e");
-      return {
-        "status": "FAILURE",
-        "message": "Something went wrong. Please try again.",
-        "data": null,
-      };
-    } finally {
-      isLoading.value = false;
-    }
+    print("🔁 RESET PASSWORD RESPONSE: $res");
+    return res;
+  } catch (e) {
+    print("❌ RESET PASSWORD ERROR: $e");
+    return {
+      "status": "FAILURE",
+      "message": "Something went wrong. Please try again.",
+      "data": null,
+    };
+  } finally {
+    isLoading.value = false;
   }
+}
 }

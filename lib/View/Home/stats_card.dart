@@ -1,6 +1,6 @@
 import 'package:contol_officer_app/utils/colors.dart';
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
 
 class StatCardItem extends StatelessWidget {
   final IconData icon;
@@ -39,7 +39,7 @@ class StatCardItem extends StatelessWidget {
         ),
         child: Row(
           children: [
-              const SizedBox(width: 6),
+            const SizedBox(width: 6),
             Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
@@ -78,7 +78,19 @@ class StatCardItem extends StatelessWidget {
 }
 
 class StatsGrid extends StatelessWidget {
-  const StatsGrid({super.key});
+  // 👇 ab ye real data lega, hardcoded nahi
+  final int totalCustomers;
+  final int activePincodeCount;
+  final VoidCallback? onCustomersTap;
+  final VoidCallback? onPincodeTap;
+
+  const StatsGrid({
+    super.key,
+    required this.totalCustomers,
+    required this.activePincodeCount,
+    this.onCustomersTap,
+    this.onPincodeTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -86,30 +98,16 @@ class StatsGrid extends StatelessWidget {
       {
         "icon": LucideIcons.users,
         "iconBg": AppColors.primary,
-        "count": "127",
-        "label": "Active Customers",
-        "onTap": () {},
-      },
-      {
-        "icon": LucideIcons.fileBarChart,
-        "iconBg": AppColors.secondary,
-        "count": "18",
-        "label": "Pending Manifests",
-        "onTap": () {},
-      },
-      {
-        "icon": LucideIcons.alertTriangle,
-        "iconBg": AppColors.container3,
-        "count": "18",
-        "label": "Open Concerns",
-        "onTap": () {},
+        "count": totalCustomers.toString(),
+        "label": "Total Customers",
+        "onTap": onCustomersTap,
       },
       {
         "icon": LucideIcons.mapPin,
-        "iconBg": AppColors.container4,
-        "count": "7",
-        "label": "Districts",
-        "onTap": () {},
+        "iconBg": AppColors.secondary,
+        "count": activePincodeCount.toString(),
+        "label": "Active PinCode",
+        "onTap": onPincodeTap,
       },
     ];
 

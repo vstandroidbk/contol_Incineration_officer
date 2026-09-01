@@ -1,7 +1,7 @@
 import 'package:contol_officer_app/Bindings/authbinding.dart';
+import 'package:contol_officer_app/Bindings/profilebinding.dart';
 import 'package:contol_officer_app/Splash/splashScreen.dart';
 import 'package:contol_officer_app/View/Concern/concern.dart';
-import 'package:contol_officer_app/View/Field/field.dart';
 import 'package:contol_officer_app/View/Home/homeview.dart';
 import 'package:contol_officer_app/View/Notifications/notifications.dart';
 import 'package:contol_officer_app/View/Reports/report.dart';
@@ -18,8 +18,11 @@ import 'package:get/get_navigation/src/routes/get_route.dart';
 class AppPages {
   static final routes = <GetPage>[
     //authentication
-  
-    GetPage(name: AppRoutes.login, page: () => const LoginScreen(),binding: AuthBinding()),
+    GetPage(
+      name: AppRoutes.login,
+      page: () => const LoginScreen(),
+      binding: AuthBinding(),
+    ),
     GetPage(
       name: AppRoutes.forgotPassword,
       page: () => const ForgotPasswordScreen(),
@@ -33,18 +36,9 @@ class AppPages {
       page: () => const CreateNewPasswordScreen(),
     ),
 
-      GetPage(
-      name: AppRoutes.splash,
-      page: () => SplashScreen()
-    ),
+    GetPage(name: AppRoutes.splash, page: () => SplashScreen()),
 
-
-
- GetPage(
-      name: AppRoutes.dashboard,
-      page: () => MainScreen(),
-    ),
-
+    GetPage(name: AppRoutes.dashboard, page: () => MainScreen()),
 
     //home
     GetPage(name: AppRoutes.homeview, page: () => const Homeview()),
@@ -57,11 +51,8 @@ class AppPages {
     //Concern
     GetPage(name: AppRoutes.concern, page: () => const Concern()),
 
-    //field
-    GetPage(name: AppRoutes.field, page: () => const Field()),
-
     //profile
-    GetPage(name: AppRoutes.profile, page: () => const Profile()),
+    GetPage(name: AppRoutes.profile, page: () => const Profile(),   binding: ProfileBinding(), ),
     GetPage(name: AppRoutes.editProfile, page: () => const Editprofile()),
   ];
 }

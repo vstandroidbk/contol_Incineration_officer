@@ -2,7 +2,7 @@ import 'package:contol_officer_app/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 class AppSnackBar {
@@ -57,10 +57,9 @@ class AppSnackBar {
     );
   }
 
+  //warning
 
-//warning
-
- static void warning({
+  static void warning({
     BuildContext? context,
     required String message,
     int duration = 3,
@@ -76,20 +75,15 @@ class AppSnackBar {
     );
   }
 
-
- static void _show(
-    BuildContext? context,
-    Widget snackBar,
-    int duration,
-  ) {
+  static void _show(BuildContext? context, Widget snackBar, int duration) {
     // Attempt to find the overlay
-   final targetContext = context ?? Get.context ?? Get.overlayContext;
+    final targetContext = context ?? Get.context ?? Get.overlayContext;
 
     if (targetContext == null) return;
 
     // 2. Find Overlay safely
     final overlay = Overlay.of(targetContext);
-    
+
     // Safety check: if overlay is null, use Get.overlayContext
     showTopSnackBar(
       overlay,
@@ -120,7 +114,7 @@ class _CompactSnackBar extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 4),
         padding: const EdgeInsets.symmetric(
-          vertical: 14,   // 🔥 THIS controls height
+          vertical: 14, // 🔥 THIS controls height
           horizontal: 12,
         ),
         decoration: BoxDecoration(
@@ -135,10 +129,10 @@ class _CompactSnackBar extends StatelessWidget {
             Flexible(
               child: Text(
                 message,
-                style:  TextStyle(
+                style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,
-                  fontWeight: FontWeight.bold
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),

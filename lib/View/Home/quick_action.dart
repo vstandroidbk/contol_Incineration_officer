@@ -2,13 +2,14 @@ import 'package:contol_officer_app/Controller/Nav/navbar_controller.dart';
 import 'package:contol_officer_app/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
 
 class QuickActionItem extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback? onTap;
   final Color bgColor;
+  final Color iconColor;
 
   const QuickActionItem({
     super.key,
@@ -16,6 +17,7 @@ class QuickActionItem extends StatelessWidget {
     required this.label,
     this.onTap,
     required this.bgColor,
+    required this.iconColor,
   });
 
   @override
@@ -30,27 +32,25 @@ class QuickActionItem extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withOpacity(0.15),
               blurRadius: 6,
               offset: const Offset(0, 3),
             ),
           ],
-          border: Border.all(color: bgColor, width: 1),
         ),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Icon(icon, color: Colors.white, size: 26),
-            const SizedBox(height: 12),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-                letterSpacing: 0.3,
+            Icon(icon, color:iconColor, size: 24),
+            const SizedBox(height: 8),
+            Expanded(
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                 
+                  letterSpacing: 0.3,
+                ),
               ),
             ),
           ],
@@ -66,41 +66,26 @@ class QuickActionsGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> actions = [
+    
       {
-        "label": "View Reports",
-        "icon": LucideIcons.clipboard,
+        "label": "View Customers",
+        "icon": LucideIcons.users,
         "onTap": () {
           final nav = Get.find<BottomNavBarController>();
           nav.changeTab(1);
         },
-        "BgColor": AppColors.container4,
+        "BgColor": Colors.white,
+        "iconColor":AppColors.gradient2
       },
-      {
-        "label": "Raise Concern",
-        "icon": LucideIcons.alertTriangle,
+        {
+        "label": "View Reports",
+        "icon": LucideIcons.clipboardList,
         "onTap": () {
           final nav = Get.find<BottomNavBarController>();
           nav.changeTab(2);
         },
-        "BgColor": AppColors.primary,
-      },
-      {
-        "label": "Field Report",
-        "icon": LucideIcons.trendingUp,
-        "onTap": () {
-          final nav = Get.find<BottomNavBarController>();
-          nav.changeTab(3);
-        },
-        "BgColor": AppColors.secondary,
-      },
-      {
-        "label": "District View",
-        "icon": LucideIcons.landmark,
-        "onTap": () {
-          final nav = Get.find<BottomNavBarController>();
-          nav.changeTab(1);
-        },
-        "BgColor": AppColors.container5.withOpacity(0.8),
+        "BgColor": Colors.white,
+        "iconColor":AppColors.primary,
       },
     ];
 
@@ -111,13 +96,14 @@ class QuickActionsGrid extends StatelessWidget {
       crossAxisCount: 2,
       mainAxisSpacing: 12,
       crossAxisSpacing: 12,
-      childAspectRatio: 1.8,
+      childAspectRatio: 2.0,
       children: actions.map((item) {
         return QuickActionItem(
           bgColor: item['BgColor'],
           icon: item["icon"],
           label: item["label"],
           onTap: item["onTap"],
+          iconColor: item["iconColor"],
         );
       }).toList(),
     );

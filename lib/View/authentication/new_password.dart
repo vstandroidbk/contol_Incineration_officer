@@ -31,12 +31,12 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
 
   //api controller
   final AuthController _authController = Get.find<AuthController>();
-  late final String userLoginDetail;
+  late final String resetId;
 
   @override
   void initState() {
     super.initState();
-    userLoginDetail = Get.arguments?["userLoginDetail"] ?? "";
+     resetId = Get.arguments?["resetId"] ?? "";   
   }
 
   @override
@@ -46,30 +46,27 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
     super.dispose();
   }
 
-  void _validateAndSubmit() async {
-    if (!formKey.currentState!.validate()) return;
+ void _validateAndSubmit() async {
+  if (!formKey.currentState!.validate()) return;
 
-    final res = await _authController.resetPassword(
-      userloginDetail: userLoginDetail,
-      password: newPasswordController.text.trim(),
+  final res = await _authController.resetPassword(
+    id: resetId,                                      // 👈 pass resetId
+    password: newPasswordController.text.trim(),
+  );
+
+  if (!mounted) return;
+
+  if (res["status"] == "SUCCESS") {
+    AppSnackBar.success(context: context, message: res["message"]);
+    AppSession.logout();
+    Get.offAllNamed(AppRoutes.login);
+  } else {
+    AppSnackBar.error(
+      context: context,
+      message: res["message"] ?? "Password reset failed",
     );
-
-    if (!mounted) return;
-
-    if (res["status"] == "SUCCESS") {
-      AppSnackBar.success(context: context, message: res["message"]);
-
-      AppSession.logout();
-
-      // 🔥 Go back to login & clear stack
-      Get.offAllNamed(AppRoutes.login);
-    } else {
-      AppSnackBar.error(
-        context: context,
-        message: res["message"] ?? "Password reset failed",
-      );
-    }
   }
+}
 
   @override
   Widget build(BuildContext context) {

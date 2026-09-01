@@ -2,7 +2,7 @@ import 'package:contol_officer_app/Controller/Nav/navbar_controller.dart';
 import 'package:contol_officer_app/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
 
 class BottomNavBarDesign extends StatelessWidget {
   BottomNavBarDesign({super.key});
@@ -11,17 +11,16 @@ class BottomNavBarDesign extends StatelessWidget {
 
   final List<IconData> icons = [
     LucideIcons.home,
+    LucideIcons.contact,
     LucideIcons.barChart,
-    LucideIcons.alertTriangle,
-    LucideIcons.clipboard,
     LucideIcons.user,
   ];
 
   final List<String> labels = [
     'Home',
+    'Customers',
     'Reports',
-    'Concerns',
-    'Field',
+    
     'Profile',
   ];
 
@@ -63,7 +62,7 @@ class BottomNavBarDesign extends StatelessWidget {
                   child: InkWell(
                     borderRadius: BorderRadius.circular(12),
                     onTap: () {
-                      controller.changeTab(index);  
+                      controller.changeTab(index);
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 4.0),

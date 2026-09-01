@@ -47,6 +47,9 @@ class CustomTextField extends StatefulWidget {
 
   final Widget? suffixIcon; // ✅ NEW
 
+  final bool readOnly;
+  final VoidCallback? onTap;
+
   const CustomTextField({
     super.key,
     required this.label,
@@ -91,6 +94,9 @@ class CustomTextField extends StatefulWidget {
     this.onPrefixChanged,
 
     this.suffixIcon,
+
+    this.readOnly = false,
+    this.onTap,
   });
 
   @override
@@ -390,7 +396,11 @@ class _CustomTextFieldState extends State<CustomTextField> {
                 textCapitalization: widget.textCapitalization,
                 obscureText: widget.isPassword ? widget.obscureText : false,
                 enabled: widget.enabled,
-                readOnly: !widget.enabled,
+                readOnly:
+                    widget.readOnly ||
+                    !widget
+                        .enabled, // 👈 changed — respects explicit readOnly too
+                onTap: widget.onTap, // 👈 add this line
                 minLines: isMultiline ? 2 : 1,
                 maxLines: isMultiline ? 4 : 1,
                 inputFormatters: widget.inputFormatters,

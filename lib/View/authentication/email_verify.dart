@@ -46,42 +46,40 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
     }
 
     setState(() => hasError = false);
+final res = await _authController.verifyOtp(
+  userLoginDetail: email,
+  otp: otp,
+);
 
-    final res = await _authController.verifyOtp(
-      userLoginDetail: email,
-      otp: otp,
+if (!mounted) return;
+
+_isSubmitting = false;
+
+if (res["status"] == "SUCCESS") {
+  AppSnackBar.success(context: context, message: res["message"]);
+
+  final String resetId = res["data"]?["id"] ?? "";   // 👈 was "officerId"
+
+  if (resetId.isEmpty) {
+    AppSnackBar.error(
+      context: context,
+      message: "Failed to retrieve reset token. Try again.",
     );
+    return;
+  }
 
-    if (!mounted) return;
-
-    _isSubmitting = false; // reset after API response
-
-    if (res["status"] == "SUCCESS") {
-      AppSnackBar.success(context: context, message: res["message"]);
-
-      final String userId = res["data"]?["officerId"] ?? "";
-
-      if (userId.isEmpty) {
-        AppSnackBar.error(
-          context: context,
-          message: "Failed to retrieve user ID. Try again.",
-        );
-        return;
-      }
-
-      Get.toNamed(
-        AppRoutes.createNewPassword,
-        arguments: {
-          "userLoginDetail": email,
-          //"userId": userId,
-        },
-      );
-    } else {
-      AppSnackBar.error(
-        context: context,
-        message: res["message"] ?? "Invalid OTP",
-      );
-    }
+  Get.toNamed(
+    AppRoutes.createNewPassword,
+    arguments: {
+      "resetId": resetId,        // 👈 pass the reset token, not email
+    },
+  );
+} else {
+  AppSnackBar.error(
+    context: context,
+    message: res["message"] ?? "Invalid OTP",
+  );
+}
   }
 
   void _checkAndSubmitOTP() {

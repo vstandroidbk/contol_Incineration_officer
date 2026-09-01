@@ -5,6 +5,12 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     
+    <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
+
+    <!-- ✅ Android 13+ (API 33+): required to show download progress/complete notifications -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    
     <application
         android:label="Incineration Officer Contol"
         android:name="${applicationName}"

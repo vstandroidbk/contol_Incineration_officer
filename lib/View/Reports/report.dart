@@ -1,45 +1,39 @@
-import 'package:contol_officer_app/View/Reports/activity_report.dart';
-import 'package:contol_officer_app/View/Reports/customers_report.dart';
-import 'package:contol_officer_app/View/Reports/district_report.dart';
-import 'package:contol_officer_app/widgets/app_bar.dart';
-import 'package:contol_officer_app/widgets/dropdown.dart';
-import 'package:contol_officer_app/widgets/loader.dart';
+import 'package:contol_officer_app/Controller/reportsController.dart';
+import 'package:contol_officer_app/View/Reports/waste_cat_report.dart';
 import 'package:contol_officer_app/utils/colors.dart';
+import 'package:contol_officer_app/widgets/app_bar.dart';
+import 'package:contol_officer_app/widgets/export_option_sheet.dart';
+import 'package:contol_officer_app/widgets/loader.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
 
 class Report extends StatefulWidget {
   const Report({super.key});
-  
+
   @override
   State<Report> createState() => _ReportState();
 }
 
-class _ReportState extends State<Report> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-  final List<String> tabs = ['District', 'Activity', 'Customers'];
-  String selectedQuarter = "Q4 2024";
-    bool isLoading = true;
+class _ReportState extends State<Report> {
+  final ReportController controller = Get.put(ReportController());
 
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: tabs.length, vsync: this);
-    _tabController.addListener(() {
-      setState(() {}); // Rebuild to update tab selection
-    });
-     // Simulate network/data load
-    Future.delayed(const Duration(milliseconds: 400), () {
-      setState(() {
-        isLoading = false;
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
+  // Same static data used by export sheet
+  static const List<String> memberNames = [
+    "Medical Center A",
+    "Green Energy Co",
+    "ABC Industries",
+    "Sunrise Pharma",
+    "BlueSky Logistics",
+    "Nashik Textiles",
+  ];
+  static const List<String> quarters = ["Q1", "Q2", "Q3", "Q4"];
+  static const List<String> years = [
+    "2023-24",
+    "2024-25",
+    "2025-26",
+    "2026-27",
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -48,106 +42,47 @@ class _ReportState extends State<Report> with SingleTickerProviderStateMixin {
       extendBodyBehindAppBar: true,
       extendBody: true,
       appBar: CustomAppBar(
-        title: "Regional Reports",
-        subtitle: "Comprehensive analytics for your region",
-        rightWidget: SizedBox(
-          width: 120,
-          child: CustomDropdownField(
-            label: "Select Quarter",
-            value: selectedQuarter,
-            items: const ["Q4 2024", "Q3 2024"],
-            hintText: "Select",
-            onChanged: (val) {
-              if (val != null) {
-                setState(() {
-                  selectedQuarter = val;
-                });
-              }
-            },
+        title: "Reports",
+        subtitle: "Waste Usage analytics for your district",
+        rightWidget: InkWell(
+          onTap: () {
+            openExportOptionsSheet(
+              context,
+              //memberNames: memberNames,
+              quarters: quarters,
+              years: years,
+            );
+          },
+          borderRadius: BorderRadius.circular(10),
+          child: Container(
+            padding: const EdgeInsets.all(9),
+            decoration: BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(
+              LucideIcons.download,
+              color: Colors.white,
+              size: 18,
+            ),
           ),
         ),
       ),
-
-      body: LoaderWrapper(
-        isLoading: isLoading,
-        shimmerItems: 10,
-        showCard: true,
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                   // Tab Bar
-                  Container(
-                    height: 45,
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: AppColors.tabBarColor,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.shade200,
-                          blurRadius: 6,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: List.generate(tabs.length, (index) {
-                        final bool isActive = _tabController.index == index;
-        
-                        return Expanded(
-                          child: GestureDetector(
-                            onTap: () =>
-                                setState(() => _tabController.index = index),
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              alignment: Alignment.center,
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              decoration: BoxDecoration(
-                                color: isActive
-                                    ? AppColors.primary
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                tabs[index],
-                                style: TextStyle(
-                                  color: isActive
-                                      ? Colors.white
-                                      : AppColors.bodytextColor.withOpacity(0.6),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      }),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-        
-                   // Tab Views
-                  Expanded(
-                    child: TabBarView(
-                      controller: _tabController,
-                      physics:
-                          const NeverScrollableScrollPhysics(), // disable swipe
-                      children: const [
-                        Districtreport(),
-                        Activityreport(),
-                        Customersreport()
-                      ],
-                    ),
-                  ),
-              ],
-              
+      body: Obx(
+        () => LoaderWrapper(
+          isLoading: controller.isLoading.value,
+          shimmerItems: 10,
+          showCard: true,
+          child: SingleChildScrollView(
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: WasteCategoriesReport(controller: controller),
+              ),
             ),
-          )),
+          ),
+        ),
       ),
-
-     
     );
   }
 }

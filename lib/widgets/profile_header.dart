@@ -2,10 +2,12 @@ import 'package:contol_officer_app/Routes/app_routes.dart';
 import 'package:contol_officer_app/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
 
 class Profileheader extends StatelessWidget {
-  const Profileheader({super.key});
+  final String? profileImageUrl; // 👈 add this
+
+  const Profileheader({super.key, this.profileImageUrl}); // 👈 add this
 
   static const Color gradient1 = Color(0xFF0C8848);
   static const Color gradient2 = Color(0xFF333F8E);
@@ -18,24 +20,21 @@ class Profileheader extends StatelessWidget {
     final double headerHeight = screenHeight * 0.20;
 
     return SizedBox(
-      height: headerHeight + 60, // extra height for profile image overflow
+      height: headerHeight + 60,
       child: Stack(
         alignment: Alignment.topCenter,
         children: [
-          // CLIPPED HEADER BACKGROUND
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Stack(
               clipBehavior: Clip.hardEdge,
               children: [
-                // BASE CONTAINER
                 Container(
                   width: double.infinity,
                   height: headerHeight,
                   color: AppColors.gradient1.withOpacity(0.88),
                 ),
 
-                // LEFT SIDE CIRCLES
                 Positioned(
                   left: -40,
                   top: headerHeight * 0.4,
@@ -48,7 +47,6 @@ class Profileheader extends StatelessWidget {
                   child: _circle(size: screenWidth * 0.4, opacity: 0.56),
                 ),
 
-                // RIGHT SIDE CIRCLES
                 Positioned(
                   right: 10,
                   top: headerHeight * -0.2,
@@ -67,7 +65,6 @@ class Profileheader extends StatelessWidget {
                   child: _circle(size: screenWidth * 0.55, opacity: 0.38),
                 ),
 
-                // EDIT BUTTON
                 Positioned(
                   top: 12,
                   right: 12,
@@ -99,7 +96,7 @@ class Profileheader extends StatelessWidget {
                       ),
                       shadowColor: Colors.black.withOpacity(0.15),
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      minimumSize: const Size(0, 0), // keeps it compact
+                      minimumSize: const Size(0, 0),
                     ),
                   ),
                 ),
@@ -115,7 +112,9 @@ class Profileheader extends StatelessWidget {
               backgroundColor: Colors.white,
               child: CircleAvatar(
                 radius: 60,
-                backgroundImage: AssetImage("assets/images/profile.jpg"),
+                backgroundImage: (profileImageUrl != null && profileImageUrl!.isNotEmpty)
+                    ? NetworkImage(profileImageUrl!) as ImageProvider   // 👈 dynamic image
+                    : const AssetImage("assets/images/profile.jpg"),   // 👈 fallback placeholder
               ),
             ),
           ),
@@ -124,9 +123,6 @@ class Profileheader extends StatelessWidget {
     );
   }
 
-  // -------------------------------------
-  // GRADIENT CIRCLE WIDGET
-  // -------------------------------------
   Widget _circle({required double size, required double opacity}) {
     return Container(
       height: size,

@@ -1,6 +1,5 @@
 import 'package:contol_officer_app/Controller/Nav/navbar_controller.dart';
-import 'package:contol_officer_app/View/Concern/concern.dart';
-import 'package:contol_officer_app/View/Field/field.dart';
+import 'package:contol_officer_app/View/Customers/customers.dart';
 import 'package:contol_officer_app/View/Home/homeview.dart';
 import 'package:contol_officer_app/View/Reports/report.dart';
 import 'package:contol_officer_app/View/profile/profile.dart';
@@ -12,13 +11,7 @@ class MainScreen extends StatelessWidget {
   MainScreen({super.key});
   final navController = Get.find<BottomNavBarController>();
 
-  final List<Widget> screens = [
-    Homeview(),
-    Report(),
-    Concern(),
-    Field(),
-    Profile()
-  ];
+  final List<Widget> screens = [Homeview(), Customers(),  Report(), Profile()];
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +21,7 @@ class MainScreen extends StatelessWidget {
           navController.changeTab(0);
           return false;
         }
-        return true; // exit app if already on Home
+        return true;
       },
       child: Obx(() {
         return Scaffold(

@@ -4,7 +4,7 @@ import 'package:contol_officer_app/utils/colors.dart';
 import 'package:contol_officer_app/utils/dialog_box.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
 
 class HomeHeaderDelegate extends SliverPersistentHeaderDelegate {
   final double collapsedHeight;
@@ -13,12 +13,20 @@ class HomeHeaderDelegate extends SliverPersistentHeaderDelegate {
   final int notificationCount;
   final VoidCallback onNotificationTap;
 
+  // 👇 new dynamic fields
+  final String officerName;
+  final String districtName;
+  final String? profileImageUrl;
+
   const HomeHeaderDelegate({
     required this.collapsedHeight,
     required this.expandedHeight,
     required this.statusBarH,
     required this.notificationCount,
     required this.onNotificationTap,
+    required this.officerName,
+    required this.districtName,
+    this.profileImageUrl,
   });
 
   @override
@@ -31,7 +39,10 @@ class HomeHeaderDelegate extends SliverPersistentHeaderDelegate {
   bool shouldRebuild(covariant HomeHeaderDelegate old) =>
       old.notificationCount != notificationCount ||
       old.expandedHeight != expandedHeight ||
-      old.collapsedHeight != collapsedHeight;
+      old.collapsedHeight != collapsedHeight ||
+      old.officerName != officerName ||
+      old.districtName != districtName ||
+      old.profileImageUrl != profileImageUrl;
 
   void _handleLogout(BuildContext context) {
     CustomDialog.show(
@@ -66,6 +77,11 @@ class HomeHeaderDelegate extends SliverPersistentHeaderDelegate {
       expandedHeight,
     );
 
+    // 👇 resolve display name once, reused in both places
+    final String displayName = officerName.isNotEmpty
+        ? "Officer $officerName"
+        : "Officer";
+
     return SizedBox(
       height: currentHeight,
       child: ClipRRect(
@@ -92,7 +108,6 @@ class HomeHeaderDelegate extends SliverPersistentHeaderDelegate {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              // ── Top Row ──────────────────────────────────────────
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -107,10 +122,8 @@ class HomeHeaderDelegate extends SliverPersistentHeaderDelegate {
                     ),
                   ),
 
-                  // ✅ Right: Notification + Avatar + Logout
                   Row(
                     children: [
-                      // 🔔 Notification Badge
                       InkWell(
                         onTap: onNotificationTap,
                         borderRadius: BorderRadius.circular(20),
@@ -138,17 +151,21 @@ class HomeHeaderDelegate extends SliverPersistentHeaderDelegate {
 
                       const SizedBox(width: 12),
 
-                      // 👤 Profile Avatar
-                      const CircleAvatar(
-                        radius: 17,
-                        backgroundImage: AssetImage(
-                          "assets/images/profile.jpg",
+                      // 👤 Profile Avatar — now dynamic
+                      InkWell(
+                        onTap: () => AppRoutes.profile,
+                        child: CircleAvatar(
+                          radius: 17,
+                          backgroundImage:
+                              (profileImageUrl != null &&
+                                  profileImageUrl!.isNotEmpty)
+                              ? NetworkImage(profileImageUrl!) as ImageProvider
+                              : const AssetImage("assets/images/profile.jpg"),
                         ),
                       ),
 
                       const SizedBox(width: 10),
 
-                      // 🚪 Logout Icon
                       InkWell(
                         onTap: () => _handleLogout(context),
                         borderRadius: BorderRadius.circular(20),
@@ -170,15 +187,15 @@ class HomeHeaderDelegate extends SliverPersistentHeaderDelegate {
                 ],
               ),
 
-              // ── Compact name (fades in on scroll) ────────────────
+              // ── Compact name (fades in on scroll) — now dynamic ────
               if (nameOpacity > 0)
                 Opacity(
                   opacity: nameOpacity,
-                  child: const Padding(
-                    padding: EdgeInsets.only(top: 2),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 2),
                     child: Text(
-                      "Officer Rajesh Kumar",
-                      style: TextStyle(
+                      displayName, // 👈 was hardcoded
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -188,7 +205,7 @@ class HomeHeaderDelegate extends SliverPersistentHeaderDelegate {
                   ),
                 ),
 
-              // ── Welcome block (fades out on scroll) ──────────────
+              // ── Welcome block (fades out on scroll) — now dynamic ──
               ClipRect(
                 child: Align(
                   alignment: Alignment.topLeft,
@@ -208,18 +225,18 @@ class HomeHeaderDelegate extends SliverPersistentHeaderDelegate {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        const Text(
-                          "Officer Rajesh Kumar",
-                          style: TextStyle(
+                        Text(
+                          displayName, // 👈 was hardcoded
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 4),
-                        const Text(
-                          "Region: North Maharashtra",
-                          style: TextStyle(
+                        Text(
+                          "District: ${districtName.isNotEmpty ? districtName : '—'}", // 👈 was hardcoded
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 14,
                             fontWeight: FontWeight.w500,

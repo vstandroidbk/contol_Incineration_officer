@@ -14,71 +14,55 @@ class AuthService {
     return await _apiClient.post(
       ApiUrls.login,
       attachUserId: false,
-      body: {"userLoginDetail": userLoginDetail, "password": password},
+      body: {"userLoginId": userLoginDetail, "password": password}, // ✅ fixed key
     );
   }
 
-  /// 🔹 Verify OTP
-  Future<Map<String, dynamic>> verifyOtp({
-    required String userLoginDetail,
-    required String otp,
-  }) async {
-    final result = await _apiClient.post(
-      ApiUrls.verifyOTP,
-      attachUserId: false,
-      body: {"userLoginDetail": userLoginDetail, "otp": otp},
-    );
-
-    if (result['status'] == "SUCCESS" && result['data'] != null) {
-      final data = result['data'] as Map<String, dynamic>;
-
-      final userId = data['officerId']?.toString() ?? "";
-
-      if (userId.isNotEmpty) {
-        await AppSession.saveUserId(userId);
-        // Link OneSignal External ID
-        try {
-          //await OneSignal.login(userId);
-          print("📩 OneSignal linked via OTP for ID: $userId");
-        } catch (e) {
-          print("❌ OneSignal OTP login failed: $e");
-        }
-      }
-    }
-    return result;
-  }
-
-  /// 🔹 Logout (Call this from your Profile/Settings)
-  Future<void> logoutUser() async {
-    try {
-      //await OneSignal.logout();
-      print("👋 OneSignal logout succeeded");
-    } catch (e) {
-      print("❌ OneSignal logout failed: $e");
-    }
-    await AppSession.logout();
-  }
-
-  // Forgot password
+  /// 🔹 Send OTP (forgot password step 1)
   Future<Map<String, dynamic>> forgotPswrd({
     required String userLoginDetail,
   }) async {
     return await _apiClient.post(
       ApiUrls.forgotpswrd,
       attachUserId: false,
-      body: {"userLoginDetail": userLoginDetail},
+      body: {"userEmail": userLoginDetail}, // ✅ fixed key
     );
   }
 
-  /// 🔹 Reset password
-  Future<Map<String, dynamic>> resetPassword({
+  /// 🔹 Verify OTP (forgot password step 2)
+  /// Returns the reset token ("id") in result['data']['id'] — NOT a login session.
+  /// Do NOT save this into AppSession — it's unrelated to the logged-in user.
+  Future<Map<String, dynamic>> verifyOtp({
     required String userLoginDetail,
+    required String otp,
+  }) async {
+    return await _apiClient.post(
+      ApiUrls.verifyOTP,
+      attachUserId: false,
+      body: {"userEmail": userLoginDetail, "otp": otp}, // ✅ fixed key
+    );
+  }
+
+  /// 🔹 Reset password (forgot password step 3)
+  /// Takes the reset token "id" from verify-otp's response — not the email.
+  Future<Map<String, dynamic>> resetPassword({
+    required String id,
     required String password,
   }) async {
     return await _apiClient.post(
       ApiUrls.resetPswrd,
       attachUserId: false,
-      body: {"userLoginDetail": userLoginDetail, "newPassword": password},
+      body: {"id": id, "password": password}, // ✅ fixed keys
     );
+  }
+
+  /// 🔹 Logout
+  Future<void> logoutUser() async {
+    try {
+      print("👋 OneSignal logout succeeded");
+    } catch (e) {
+      print("❌ OneSignal logout failed: $e");
+    }
+    await AppSession.logout();
   }
 }

@@ -6,7 +6,7 @@ import 'package:contol_officer_app/widgets/loader.dart';
 import 'package:contol_officer_app/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
 
 class Concern extends StatefulWidget {
   const Concern({super.key});
