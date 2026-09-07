@@ -14,7 +14,9 @@ class WasteCategoryReportModel {
       year: json['year']?.toString() ?? 'ALL',
       quarter: json['quarter']?.toString() ?? 'ALL',
       response: (json['response'] as List<dynamic>? ?? [])
-          .map((e) => WasteCategoryReportItem.fromJson(e as Map<String, dynamic>))
+          .map(
+            (e) => WasteCategoryReportItem.fromJson(e as Map<String, dynamic>),
+          )
           .toList(),
     );
   }
@@ -56,7 +58,6 @@ class WasteCategoryReportItem {
       remainingQuantityType: json['remainingQuantityType'] ?? '',
     );
   }
-
 }
 
 // lib/model/wasteReportGenerateModel.dart
@@ -64,8 +65,8 @@ class WasteReportGenerateModel {
   final String pdfFileName;
   final String pdfUrl;
   final int memberCount;
-  final String year; 
-  final String quarter; 
+  final String year;
+  final String quarter;
 
   WasteReportGenerateModel({
     required this.pdfFileName,

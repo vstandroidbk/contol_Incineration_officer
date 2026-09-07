@@ -1,4 +1,5 @@
 import 'package:contol_officer_app/Controller/homecontroller.dart';
+import 'package:contol_officer_app/View/Home/category_members.dart';
 import 'package:contol_officer_app/widgets/app_bar.dart';
 import 'package:contol_officer_app/utils/colors.dart';
 import 'package:contol_officer_app/widgets/searchbar.dart';
@@ -38,6 +39,7 @@ class _SearchByCategoryState extends State<SearchByCategory> {
       appBar: const CustomAppBar(
         title: "Search by Category",
         subtitle: "Browse members by waste category",
+        showBack: true,
       ),
       body: SafeArea(
         child: Padding(
@@ -128,6 +130,16 @@ class _SearchByCategoryState extends State<SearchByCategory> {
                         title: c.categoryTitle,
                         number: c.categoryNumber,
                         memberCount: c.memberCount,
+                        onTap: () {
+                          Get.to(
+                            () => CategoryMembers(
+                              categoryId: c
+                                  .categoryId, // 👈 CategoryItemModel me ye field hona chahiye
+                              categoryTitle: c.categoryTitle,
+                              categoryNumber: c.categoryNumber,
+                            ),
+                          );
+                        },
                       );
                     },
                   );
@@ -145,78 +157,83 @@ class _CategoryTile extends StatelessWidget {
   final String title;
   final String number;
   final int memberCount;
+  final VoidCallback onTap; // 👈 add
 
   const _CategoryTile({
     required this.title,
     required this.number,
     required this.memberCount,
+    required this.onTap, // 👈 add
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.textfieldBorder.withOpacity(0.8)),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.bodytextColor.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
-            decoration: BoxDecoration(
-              color: AppColors.container4.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.textfieldBorder.withOpacity(0.8)),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.bodytextColor.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
             ),
-            child: Text(
-              number,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-                color: AppColors.container4,
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+              decoration: BoxDecoration(
+                color: AppColors.container4.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                number,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.container4,
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.bodytextColor,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.bodytextColor,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  "$memberCount members",
-                  style: TextStyle(
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.lighttextColor,
+                  const SizedBox(height: 3),
+                  Text(
+                    "$memberCount members",
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.lighttextColor,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Icon(
-            LucideIcons.chevronRight,
-            size: 16,
-            color: AppColors.lighttextColor.withOpacity(0.5),
-          ),
-        ],
+            Icon(
+              LucideIcons.chevronRight,
+              size: 16,
+              color: AppColors.lighttextColor.withOpacity(0.5),
+            ),
+          ],
+        ),
       ),
     );
   }

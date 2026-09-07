@@ -1,6 +1,7 @@
 import 'package:contol_officer_app/Controller/customerController.dart';
 import 'package:contol_officer_app/Controller/reportsController.dart';
 import 'package:contol_officer_app/utils/colors.dart';
+import 'package:contol_officer_app/utils/file_preview.dart';
 import 'package:contol_officer_app/utils/year_picker.dart';
 import 'package:contol_officer_app/widgets/dropdown.dart';
 import 'package:flutter/material.dart';
@@ -26,10 +27,11 @@ void openExportOptionsSheet(
   String? selectedMemberId;
   String? selectedMemberLabel;
   String? selectedQuarter;
-  String? selectedYear;
 
-  // Fire an initial check for "no filters = all data" as soon as the sheet opens.
-  reportController.onFilterChanged();
+  String? selectedYear = _currentFinancialYearLabel(years);
+
+  reportController.previewedReport.value = null;
+  reportController.checkStatusMessage.value = '';
 
   showModalBottomSheet(
     context: context,
@@ -38,8 +40,8 @@ void openExportOptionsSheet(
     builder: (sheetContext) {
       return StatefulBuilder(
         builder: (sheetContext, setSheetState) {
-          void triggerCheck() {
-            reportController.onFilterChanged(
+          Future<void> checkAndViewPdf() async {
+            await reportController.checkReportAvailability(
               memberId: selectedMemberId,
               year: selectedYear == null
                   ? null
@@ -50,11 +52,31 @@ void openExportOptionsSheet(
                       selectedQuarter!.replaceAll(RegExp(r'[^0-9]'), ''),
                     ),
             );
+
+            final report = reportController.previewedReport.value;
+            if (report != null) {
+              Navigator.pop(sheetContext);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => PdfViewScreen(
+                    pdfUrl: report.pdfUrl,
+                    title: report.pdfFileName.isNotEmpty
+                        ? report.pdfFileName
+                        : 'Waste Report',
+                    showDownload: true,
+                  ),
+                ),
+              );
+            }
           }
 
           return Container(
             padding: EdgeInsets.only(
-              bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
+              bottom:
+                  MediaQuery.of(context).viewInsets.bottom +
+                  MediaQuery.of(context).padding.bottom +
+                  16,
             ),
             decoration: const BoxDecoration(
               color: Colors.white,
@@ -125,24 +147,38 @@ void openExportOptionsSheet(
                       );
                     }
 
-                    final memberNames = customersController.allMembers
-                        .map((m) => m.industryName)
-                        .toList();
+                    const String allMembersLabel = "All Members";
+                    final memberNames = [
+                      allMembersLabel,
+                      ...customersController.allMembers.map(
+                        (m) => m.industryName,
+                      ),
+                    ];
 
                     return CustomDropdownField2(
-                      label: "Member (optional)",
+                      label: "Member ",
                       hintText: "All members",
-                      value: selectedMemberLabel,
+                      value: selectedMemberLabel ?? allMembersLabel,
                       items: memberNames,
                       searchable: true,
                       onChanged: (v) {
+                        // ✅ CHANGED — local state only, no API call here
                         setSheetState(() {
-                          selectedMemberLabel = v;
-                          final match = customersController.allMembers
-                              .firstWhereOrNull((m) => m.industryName == v);
-                          selectedMemberId = match?.membershipId;
+                          if (v == allMembersLabel) {
+                            selectedMemberLabel = null;
+                            selectedMemberId = null;
+                          } else {
+                            selectedMemberLabel = v;
+                            final match = customersController.allMembers
+                                .firstWhereOrNull((m) => m.industryName == v);
+                            selectedMemberId = match?.membershipId;
+                          }
+                          // stale preview/error no longer matches the new
+                          // filter selection — clear so old banner doesn't
+                          // mislead the user until they check again
+                          reportController.previewedReport.value = null;
+                          reportController.checkStatusMessage.value = '';
                         });
-                        triggerCheck();
                       },
                     );
                   }),
@@ -151,7 +187,7 @@ void openExportOptionsSheet(
 
                   // ── Quarter ──────────────────────────
                   const Text(
-                    "Quarter (optional)",
+                    "Quarter ",
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
@@ -168,10 +204,12 @@ void openExportOptionsSheet(
                         label: q,
                         selected: isSelected,
                         onTap: () {
-                          setSheetState(
-                            () => selectedQuarter = isSelected ? null : q,
-                          );
-                          triggerCheck();
+                          // ✅ CHANGED — local state only, no API call here
+                          setSheetState(() {
+                            selectedQuarter = isSelected ? null : q;
+                            reportController.previewedReport.value = null;
+                            reportController.checkStatusMessage.value = '';
+                          });
                         },
                       );
                     }).toList(),
@@ -181,7 +219,7 @@ void openExportOptionsSheet(
 
                   // ── Year ──────────────────────────
                   const Text(
-                    "Year (optional)",
+                    "Year ",
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
@@ -190,17 +228,20 @@ void openExportOptionsSheet(
                   ),
                   const SizedBox(height: 10),
                   YearPickerField(
-                    value: selectedYear,
+                    value: selectedYear, // ab pre-filled current FY hoga
                     hintText: "All years",
                     onChanged: (v) {
-                      setSheetState(() => selectedYear = v);
-                      triggerCheck();
+                      setSheetState(() {
+                        selectedYear = v;
+                        reportController.previewedReport.value = null;
+                        reportController.checkStatusMessage.value = '';
+                      });
                     },
                   ),
-
                   const SizedBox(height: 16),
 
-                  // ── Live status: checking / ready / no-data ──────────────
+                  // ── Live status: only reflects the LAST time
+                  // "View PDF" was pressed — not every filter tweak.
                   Obx(() {
                     if (reportController.isCheckingReport.value) {
                       return _StatusBanner(
@@ -209,17 +250,6 @@ void openExportOptionsSheet(
                         text: "Checking availability...",
                         background: AppColors.primary.withOpacity(0.06),
                         spinning: true,
-                      );
-                    }
-
-                    final report = reportController.previewedReport.value;
-                    if (report != null) {
-                      return _StatusBanner(
-                        icon: LucideIcons.checkCircle2,
-                        iconColor: Colors.green.shade600,
-                        text:
-                            "Report ready — ${report.memberCount} member${report.memberCount == 1 ? '' : 's'} found",
-                        background: Colors.green.withOpacity(0.07),
                       );
                     }
 
@@ -238,48 +268,34 @@ void openExportOptionsSheet(
 
                   const SizedBox(height: 20),
 
-                  // ── Export button ──────────────────────────
+                  // ── View PDF button — now triggers the check itself ──
                   SizedBox(
                     width: double.infinity,
                     child: Obx(() {
-                      final canExport =
-                          reportController.previewedReport.value != null &&
-                          !reportController.isCheckingReport.value &&
-                          !reportController.isDownloading.value;
+                      final isChecking =
+                          reportController.isCheckingReport.value;
 
                       return ElevatedButton.icon(
-                        onPressed: canExport
-                            ? () async {
-                                // Download BEFORE popping — the sheet's own
-                                // context stays mounted for the whole call,
-                                // so snackbars/dialogs inside the download
-                                // helper never hit a deactivated widget.
-                                await reportController.downloadPreviewedReport(
-                                  sheetContext,
-                                );
-                                if (sheetContext.mounted) {
-                                  Navigator.pop(sheetContext);
-                                }
-                              }
-                            : null,
-                        icon: reportController.isDownloading.value
+                        // ✅ CHANGED — always tappable (unless a check is
+                        // already in flight); the button itself now runs
+                        // the availability check, then navigates on success
+                        onPressed: isChecking ? null : () => checkAndViewPdf(),
+                        icon: isChecking
                             ? const SizedBox(
-                                width: 18,
-                                height: 18,
+                                width: 16,
+                                height: 16,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
                                   color: Colors.white,
                                 ),
                               )
                             : const Icon(
-                                LucideIcons.download,
+                                LucideIcons.eye,
                                 color: Colors.white,
                                 size: 18,
                               ),
                         label: Text(
-                          reportController.isDownloading.value
-                              ? "Downloading..."
-                              : "Export PDF",
+                          isChecking ? "Checking..." : "View PDF",
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w700,
@@ -289,7 +305,7 @@ void openExportOptionsSheet(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
                           disabledBackgroundColor: AppColors.primary
-                              .withOpacity(0.35),
+                              .withOpacity(0.6),
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
@@ -306,6 +322,21 @@ void openExportOptionsSheet(
       );
     },
   );
+}
+
+/// Computes the current Indian financial year label ("YYYY-YY") to
+/// preselect in the Year dropdown. Financial year runs Apr 1 – Mar 31,
+/// so Jan–Mar counts toward the year that started the previous April.
+/// Returns null if that computed label isn't present in `years` (so the
+/// dropdown safely falls back to "All years" rather than showing a value
+/// that doesn't exist in its item list).
+String? _currentFinancialYearLabel(List<String> years) {
+  final now = DateTime.now();
+  final startYear = now.month >= 4 ? now.year : now.year - 1;
+  final endYearShort = (startYear + 1).toString().substring(2);
+  final label = "$startYear-$endYearShort"; // e.g. "2026-27"
+
+  return years.contains(label) ? label : null;
 }
 
 class _StatusBanner extends StatefulWidget {

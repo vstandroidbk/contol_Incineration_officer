@@ -4,6 +4,7 @@ import 'package:contol_officer_app/Controller/Nav/navbar_controller.dart';
 import 'package:contol_officer_app/Controller/profileController.dart';
 import 'package:contol_officer_app/Routes/app_routes.dart';
 import 'package:contol_officer_app/Routes/route_screens.dart';
+import 'package:contol_officer_app/utils/file_download.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -23,6 +24,10 @@ Future<void> main() async {
   Get.put(BottomNavBarController(), permanent: true);
   Get.put(AuthController(), permanent: true);
   Get.put(ProfileController(), permanent: true);
+
+  // 🔹 Start listening for native DownloadManager completion/failure
+  // callbacks (from MainActivity.kt's registerDownloadCompleteReceiver).
+  FileDownloadHelper.initDownloadListener();
 
   runApp(const MyApp());
 }

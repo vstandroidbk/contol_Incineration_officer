@@ -1,3 +1,4 @@
+import 'package:contol_officer_app/Controller/Nav/navbar_controller.dart';
 import 'package:contol_officer_app/Routes/app_routes.dart';
 import 'package:contol_officer_app/utils/appSession.dart';
 import 'package:contol_officer_app/utils/colors.dart';
@@ -13,7 +14,6 @@ class HomeHeaderDelegate extends SliverPersistentHeaderDelegate {
   final int notificationCount;
   final VoidCallback onNotificationTap;
 
-  // 👇 new dynamic fields
   final String officerName;
   final String districtName;
   final String? profileImageUrl;
@@ -43,6 +43,14 @@ class HomeHeaderDelegate extends SliverPersistentHeaderDelegate {
       old.officerName != officerName ||
       old.districtName != districtName ||
       old.profileImageUrl != profileImageUrl;
+
+  // ✅ FIXED — was Get.toNamed(AppRoutes.profile), which pushed a
+  // standalone Profile route outside MainScreen's IndexedStack, losing
+  // the bottom nav bar. Profile is a TAB (index 3), not a separate
+  // route — switch tabs via BottomNavBarController instead.
+  void _goToProfileTab() {
+    Get.find<BottomNavBarController>().changeTab(3);
+  }
 
   void _handleLogout(BuildContext context) {
     CustomDialog.show(
@@ -77,7 +85,6 @@ class HomeHeaderDelegate extends SliverPersistentHeaderDelegate {
       expandedHeight,
     );
 
-    // 👇 resolve display name once, reused in both places
     final String displayName = officerName.isNotEmpty
         ? "Officer $officerName"
         : "Officer";
@@ -121,7 +128,6 @@ class HomeHeaderDelegate extends SliverPersistentHeaderDelegate {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-
                   Row(
                     children: [
                       InkWell(
@@ -148,24 +154,30 @@ class HomeHeaderDelegate extends SliverPersistentHeaderDelegate {
                           ),
                         ),
                       ),
-
                       const SizedBox(width: 12),
-
-                      // 👤 Profile Avatar — now dynamic
                       InkWell(
-                        onTap: () => AppRoutes.profile,
+                        onTap:
+                            _goToProfileTab, // ✅ FIXED — was Get.toNamed(AppRoutes.profile)
                         child: CircleAvatar(
                           radius: 17,
+                          backgroundColor: Colors.white.withOpacity(0.2),
                           backgroundImage:
                               (profileImageUrl != null &&
                                   profileImageUrl!.isNotEmpty)
-                              ? NetworkImage(profileImageUrl!) as ImageProvider
-                              : const AssetImage("assets/images/profile.jpg"),
+                              ? NetworkImage(profileImageUrl!)
+                              : null,
+                          child:
+                              (profileImageUrl == null ||
+                                  profileImageUrl!.isEmpty)
+                              ? const Icon(
+                                  LucideIcons.user,
+                                  color: Colors.white,
+                                  size: 18,
+                                )
+                              : null,
                         ),
                       ),
-
                       const SizedBox(width: 10),
-
                       InkWell(
                         onTap: () => _handleLogout(context),
                         borderRadius: BorderRadius.circular(20),
@@ -186,15 +198,13 @@ class HomeHeaderDelegate extends SliverPersistentHeaderDelegate {
                   ),
                 ],
               ),
-
-              // ── Compact name (fades in on scroll) — now dynamic ────
               if (nameOpacity > 0)
                 Opacity(
                   opacity: nameOpacity,
                   child: Padding(
                     padding: const EdgeInsets.only(top: 2),
                     child: Text(
-                      displayName, // 👈 was hardcoded
+                      displayName,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 13,
@@ -204,8 +214,6 @@ class HomeHeaderDelegate extends SliverPersistentHeaderDelegate {
                     ),
                   ),
                 ),
-
-              // ── Welcome block (fades out on scroll) — now dynamic ──
               ClipRect(
                 child: Align(
                   alignment: Alignment.topLeft,
@@ -226,7 +234,7 @@ class HomeHeaderDelegate extends SliverPersistentHeaderDelegate {
                           ),
                         ),
                         Text(
-                          displayName, // 👈 was hardcoded
+                          displayName,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 20,
@@ -235,7 +243,7 @@ class HomeHeaderDelegate extends SliverPersistentHeaderDelegate {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          "District: ${districtName.isNotEmpty ? districtName : '—'}", // 👈 was hardcoded
+                          "District: ${districtName.isNotEmpty ? districtName : '—'}",
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 14,

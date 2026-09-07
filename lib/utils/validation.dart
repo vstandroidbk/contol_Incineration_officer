@@ -49,11 +49,11 @@ class ValidationUtil {
   /// Validates password strength (min 6 chars)
   static String? validatePassword(String value) {
     if (value.isEmpty) return "Password is required";
-    // if (value.length < 6) return "Password must be at least 6 characters";
-    // return null;
+    if (value.length < 6) return "Password must be at least 6 characters";
+    return null;
   }
 
-   static String? validatePasswordonly(String value) {
+  static String? validatePasswordonly(String value) {
     if (value.isEmpty) {
       return "Password is required";
     }

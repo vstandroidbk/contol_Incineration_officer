@@ -22,7 +22,31 @@ class FileDownloadHelper {
     'com.contol.incineration/media_scanner',
   );
 
-  /// Download PDF — uses Android DownloadManager (shows native notification)
+  // Prevents duplicate downloads if the user taps the button multiple times
+  // while a download is already in progress.
+  static bool _isDownloading = false;
+
+  /// NOTE: No longer needed since we don't use native DownloadManager on
+  /// Android anymore, but left here (harmless no-op) in case anything
+  /// else still calls it at app startup.
+  static void initDownloadListener() {
+    _channel.setMethodCallHandler((call) async {
+      if (call.method == 'onDownloadComplete') {
+        final args = Map<String, dynamic>.from(call.arguments as Map);
+        final success = args['success'] as bool;
+        if (success) {
+          print('✅ Native DownloadManager: download completed successfully');
+        } else {
+          final reason = args['reason'];
+          print('❌ Native DownloadManager: FAILED — reason code: $reason');
+        }
+      }
+    });
+  }
+
+  /// Download a file (PDF/image) and save it to the device.
+  /// Android: fetched via Dart http + saved through MediaStore (fast, reliable).
+  /// iOS: fetched via Dart http + saved to app Documents directory.
   static Future<bool> downloadFile({
     required BuildContext context,
     required String fileUrl,
@@ -30,6 +54,12 @@ class FileDownloadHelper {
     bool openAfterDownload = true,
     String? displayName,
   }) async {
+    if (_isDownloading) {
+      // A download is already in progress — ignore duplicate taps.
+      return false;
+    }
+
+    _isDownloading = true;
     try {
       if (!await _requestStoragePermission(context)) {
         AppSnackBar.error(
@@ -42,7 +72,7 @@ class FileDownloadHelper {
       final fileName = customFileName ?? _generateFileName(fileUrl);
 
       if (Platform.isAndroid) {
-        return await _startAndroidDownloadManager(
+        return await _downloadAndroidViaDart(
           context: context,
           url: fileUrl,
           fileName: fileName,
@@ -63,37 +93,69 @@ class FileDownloadHelper {
         message: 'Download failed: ${e.toString()}',
       );
       return false;
+    } finally {
+      _isDownloading = false;
     }
   }
 
   // ---------------------------------------------------------------------------
-  // 🤖 ANDROID — DownloadManager (native notification + Files app integration)
+  // 🤖 ANDROID — Dart http fetch + MediaStore save (bypasses native
+  // DownloadManager, which was unreliable / very slow on some devices due to
+  // OEM battery optimization / Doze throttling of the system download service).
   // ---------------------------------------------------------------------------
-  static Future<bool> _startAndroidDownloadManager({
+  static Future<bool> _downloadAndroidViaDart({
     required BuildContext context,
     required String url,
     required String fileName,
     String? displayName,
   }) async {
+    bool dialogShown = false;
     try {
-      await _channel.invokeMethod('startDownload', {
-        'url': url,
+      _showLoadingDialog(context);
+      dialogShown = true;
+
+      print('🔗 DOWNLOAD URL (dart, android via http): "$url"');
+
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode != 200) {
+        if (dialogShown && Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        }
+        AppSnackBar.error(
+          context: context,
+          message: 'Failed to download file (${response.statusCode})',
+        );
+        return false;
+      }
+
+      final filePath = await _channel.invokeMethod<String>('saveToDownloads', {
         'fileName': fileName,
-        'title': fileName,
-        'description': 'Downloading...',
-        'mimeType': _getMimeType(url),
+        'bytes': response.bodyBytes,
       });
 
+      if (dialogShown && Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
+
+      if (filePath == null) {
+        AppSnackBar.error(context: context, message: 'Failed to save file');
+        return false;
+      }
+
+      print('✅ File saved to Downloads: $filePath');
       AppSnackBar.success(
         context: context,
-        message: '${displayName ?? 'File'} Downloading...',
+        message: '${displayName ?? 'File'} saved to Downloads',
       );
-
       return true;
-    } on PlatformException catch (e) {
+    } catch (e) {
+      if (dialogShown && Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
       AppSnackBar.error(
         context: context,
-        message: 'Download failed: ${e.message}',
+        message: 'Download failed: ${e.toString()}',
       );
       return false;
     }
@@ -107,11 +169,10 @@ class FileDownloadHelper {
     try {
       _showLoadingDialog(context);
 
-      // ignore: deprecated_member_use
-      final response = await (http.get(Uri.parse(fileUrl)));
+      final response = await http.get(Uri.parse(fileUrl));
 
       if (response.statusCode != 200) {
-        Navigator.of(context).pop();
+        if (Navigator.of(context).canPop()) Navigator.of(context).pop();
         AppSnackBar.error(context: context, message: 'Failed to download file');
         return false;
       }
@@ -119,12 +180,12 @@ class FileDownloadHelper {
       final filePath = await _saveFileIOS(fileName, response.bodyBytes);
 
       if (filePath == null) {
-        Navigator.of(context).pop();
+        if (Navigator.of(context).canPop()) Navigator.of(context).pop();
         AppSnackBar.error(context: context, message: 'Failed to save file');
         return false;
       }
 
-      Navigator.of(context).pop();
+      if (Navigator.of(context).canPop()) Navigator.of(context).pop();
       AppSnackBar.success(context: context, message: 'File saved to Documents');
       return true;
     } catch (e) {

@@ -159,4 +159,18 @@ class ReportController extends GetxController {
     _checkDebounce?.cancel();
     super.onClose();
   }
+
+   Future<void> checkReportAvailability({
+    String? memberId,
+    int? year,
+    int? quarter,
+  }) {
+    previewedReport.value = null;
+    checkStatusMessage.value = '';
+    return _checkReportAvailability(
+      memberId: memberId,
+      year: year,
+      quarter: quarter,
+    );
+  }
 }

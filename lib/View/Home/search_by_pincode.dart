@@ -31,10 +31,12 @@ class _SearchByPincodeState extends State<SearchByPincode> {
     super.dispose();
   }
 
-  String _formatDate(String? isoDate) {
-    if (isoDate == null || isoDate.isEmpty) return "-";
+  String _formatDate(String? dateStr) {
+    if (dateStr == null || dateStr.isEmpty) return "-";
+
+    // 👇 Try ISO parse first (old API format: 2036-03-30T18:30:00.000Z)
     try {
-      final date = DateTime.parse(isoDate);
+      final date = DateTime.parse(dateStr);
       const months = [
         "Jan",
         "Feb",
@@ -51,7 +53,8 @@ class _SearchByPincodeState extends State<SearchByPincode> {
       ];
       return "${months[date.month - 1]} ${date.day.toString().padLeft(2, '0')}, ${date.year}";
     } catch (_) {
-      return "-";
+      // 👇 Not ISO — likely already human-readable (new API: "March 31, 2036")
+      return dateStr; // as-is return kar do, kyunki already formatted hai
     }
   }
 
@@ -164,7 +167,7 @@ class _SearchByPincodeState extends State<SearchByPincode> {
                     itemBuilder: (context, index) {
                       final c = memberController.members[index];
                       return CustomerCard(
-                        customerId: c.membershipId,
+                        customerId: c.membershipUserId,
                         companyName: c.industryName,
                         isActive: c.isActive,
                         memberTill: _formatDate(c.validTill),
@@ -174,13 +177,16 @@ class _SearchByPincodeState extends State<SearchByPincode> {
                         onViewDetails: () {
                           Get.to(
                             () => CustomerDetails(
-                              customerId: c.membershipId,
+                              customerId: c.membershipUserId,
+                              memberId: c.membershipId,
                               companyName: c.industryName,
                               isActive: c.isActive,
                               memberTill: _formatDate(c.validTill),
-                              address: "-",
-                              // agar CustomerDetails bhi profile dikhata hai to wahan bhi:
-                              // profileImageUrl: c.profile,
+                              address:
+                                  c.plantAddress ??
+                                  "-", // ✅ real fallback instead of hardcoded
+                              profileImageUrl: c
+                                  .profile, // bonus: avatar bhi missing tha yahan
                             ),
                           );
                         },

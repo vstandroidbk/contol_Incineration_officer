@@ -22,7 +22,10 @@ Future<void> openCategoryFilterSheetMember(
         builder: (context, setSheetState) {
           return Container(
             padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
+              bottom:
+                  MediaQuery.of(context).viewInsets.bottom +
+                  MediaQuery.of(context).padding.bottom +
+                  16,
             ),
             decoration: const BoxDecoration(
               color: Colors.white,

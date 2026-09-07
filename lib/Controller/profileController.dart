@@ -10,6 +10,35 @@ class ProfileController extends GetxController {
   var isUpdatingProfile = false.obs; // 👈 new
   var officerProfile = Rxn<OfficerProfileModel>();
 
+    var isChangingPassword = false.obs; // 👈 new
+
+  /// 🔹 Change officer password
+  Future<Map<String, dynamic>> updatePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      isChangingPassword.value = true;
+
+      final res = await _profileService.updatePassword(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      );
+
+      print("🔐 UPDATE PASSWORD RESPONSE: $res");
+      return res;
+    } catch (e) {
+      print("❌ UPDATE PASSWORD ERROR: $e");
+      return {
+        "status": "FAILURE",
+        "message": "Something went wrong. Please try again.",
+        "data": null,
+      };
+    } finally {
+      isChangingPassword.value = false;
+    }
+  }
+
   Future<void> fetchOfficerProfile() async {
     try {
       isLoading.value = true;

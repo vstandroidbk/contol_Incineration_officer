@@ -15,7 +15,7 @@ class ApiClient extends GetxService {
   Future<ApiClient> init() async {
     dio = Dio(
       BaseOptions(
-        baseUrl: ApiUrls.baseUrl,
+        baseUrl: ApiUrls.liveUrl,
         connectTimeout: const Duration(seconds: 30),
         receiveTimeout: const Duration(seconds: 30),
         headers: {"Content-Type": "application/json"},

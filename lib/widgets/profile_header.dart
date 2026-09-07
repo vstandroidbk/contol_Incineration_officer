@@ -108,13 +108,22 @@ class Profileheader extends StatelessWidget {
           Positioned(
             bottom: 25,
             child: CircleAvatar(
-              radius: 63,
+              radius: 55,
               backgroundColor: Colors.white,
               child: CircleAvatar(
-                radius: 60,
-                backgroundImage: (profileImageUrl != null && profileImageUrl!.isNotEmpty)
-                    ? NetworkImage(profileImageUrl!) as ImageProvider   // 👈 dynamic image
-                    : const AssetImage("assets/images/profile.jpg"),   // 👈 fallback placeholder
+                radius: 50,
+                 backgroundImage:
+                    (profileImageUrl != null && profileImageUrl!.isNotEmpty)
+                    ? NetworkImage(profileImageUrl!)
+                    : null, // 👈 changed — no more asset fallback
+                child: (profileImageUrl == null || profileImageUrl!.isEmpty)
+                    ? Icon(
+                        LucideIcons.user, 
+                        size: 30,
+                        
+                      )
+                    : null,
+            
               ),
             ),
           ),

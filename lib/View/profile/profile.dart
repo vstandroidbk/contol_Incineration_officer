@@ -24,7 +24,7 @@ class _ProfileState extends State<Profile> {
   @override
   void initState() {
     super.initState();
-    _profileController.fetchOfficerProfile(); 
+    Future.microtask(() => _profileController.fetchOfficerProfile());
   }
 
   void _showProfileImage(BuildContext context, String imageUrl) {
@@ -146,16 +146,7 @@ class _ProfileState extends State<Profile> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          Text(
-                            profile?.loginId ?? "—",
-                            style: TextStyle(
-                              color: AppColors.bodytextColor,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
 
-                          const SizedBox(height: 8),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -203,24 +194,27 @@ class _ProfileState extends State<Profile> {
                             ),
                           ),
                           const SizedBox(height: 24),
-
                           _InfoSectionContainer(
                             title: "Contact Information",
                             child: Column(
                               children: [
                                 _InfoRow(
+                                  icon: LucideIcons
+                                      .idCard, // 👈 login id ke liye icon
+                                  label: "Login ID",
+                                  value: profile?.loginId ?? "—",
+                                ),
+                                Divider(color: AppColors.textfieldBorder),
+                                _InfoRow(
                                   icon: Icons.email_outlined,
                                   label: "Email",
-                                  value:
-                                      profile?.email ?? "—", // 👈 was hardcoded
+                                  value: profile?.email ?? "—",
                                 ),
                                 Divider(color: AppColors.textfieldBorder),
                                 _InfoRow(
                                   icon: Icons.phone_outlined,
                                   label: "Phone",
-                                  value:
-                                      profile?.mobileNumber ??
-                                      "—", // 👈 was hardcoded
+                                  value: profile?.mobileNumber ?? "—",
                                 ),
                               ],
                             ),
@@ -474,7 +468,7 @@ class _ProfileState extends State<Profile> {
                               Expanded(
                                 child: OutlinedButton(
                                   onPressed: () =>
-                                      Get.toNamed(AppRoutes.editProfile),
+                                      Get.toNamed(AppRoutes.changePassword),
                                   style: OutlinedButton.styleFrom(
                                     foregroundColor: AppColors.bodytextColor,
                                     side: const BorderSide(
@@ -491,7 +485,7 @@ class _ProfileState extends State<Profile> {
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                   ),
-                                  child: const Text("Edit Profile"),
+                                  child: const Text("Change Password"),
                                 ),
                               ),
                               const SizedBox(width: 10),

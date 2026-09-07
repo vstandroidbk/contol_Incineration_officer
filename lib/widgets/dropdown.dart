@@ -120,8 +120,8 @@ class CustomDropdownField extends StatelessWidget {
   }
 }
 
-/// New CustomDropdownField2 — now with a search box inside the dropdown menu
-class CustomDropdownField2 extends StatelessWidget {
+/// New CustomDropdownField2 — now with a working search box inside the dropdown menu
+class CustomDropdownField2 extends StatefulWidget {
   final String label;
   final String? value;
   final List<String> items;
@@ -146,23 +146,40 @@ class CustomDropdownField2 extends StatelessWidget {
   });
 
   @override
+  State<CustomDropdownField2> createState() => _CustomDropdownField2State();
+}
+
+class _CustomDropdownField2State extends State<CustomDropdownField2> {
+  // 👇 add — one stable controller for the lifetime of this widget,
+  // wired directly to the search TextFormField below so
+  // dropdown_button2 actually receives keystrokes.
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose(); // 👈 add
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final bool hasError = errorText != null && errorText!.isNotEmpty;
+    final bool hasError =
+        widget.errorText != null && widget.errorText!.isNotEmpty;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (label.isNotEmpty)
+        if (widget.label.isNotEmpty)
           Text(
-            label,
+            widget.label,
             style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
           ),
-        if (label.isNotEmpty) const SizedBox(height: 6),
+        if (widget.label.isNotEmpty) const SizedBox(height: 6),
 
         DropdownButtonFormField2<String>(
-          value: value,
+          value: widget.value,
           isExpanded: true,
-          onChanged: enabled ? onChanged : null,
+          onChanged: widget.enabled ? widget.onChanged : null,
 
           decoration: InputDecoration(
             isDense: true,
@@ -194,7 +211,7 @@ class CustomDropdownField2 extends StatelessWidget {
           ),
 
           hint: Text(
-            hintText,
+            widget.hintText,
             style: TextStyle(
               color: AppColors.bodytextColor.withOpacity(0.55),
               fontSize: 14,
@@ -231,9 +248,10 @@ class CustomDropdownField2 extends StatelessWidget {
           ),
 
           // ── Search box inside the dropdown ──────────────────────
-          dropdownSearchData: searchable
+          dropdownSearchData: widget.searchable
               ? DropdownSearchData<String>(
-                  searchController: TextEditingController(),
+                  searchController:
+                      _searchController, // 👈 fix — same instance as below
                   searchInnerWidgetHeight: 60,
                   searchInnerWidget: Container(
                     height: 60,
@@ -242,6 +260,8 @@ class CustomDropdownField2 extends StatelessWidget {
                       vertical: 12,
                     ),
                     child: TextFormField(
+                      controller:
+                          _searchController, // 👈 fix — THE missing wire-up
                       autofocus: true,
                       decoration: InputDecoration(
                         isDense: true,
@@ -249,7 +269,7 @@ class CustomDropdownField2 extends StatelessWidget {
                           horizontal: 16,
                           vertical: 12,
                         ),
-                        hintText: searchHintText,
+                        hintText: widget.searchHintText,
                         hintStyle: TextStyle(
                           fontSize: 14,
                           color: AppColors.bodytextColor.withOpacity(0.5),
@@ -277,22 +297,16 @@ class CustomDropdownField2 extends StatelessWidget {
                       ),
                     ),
                   ),
+                  // 3 letters se kam hone tak sab items dikhao
                   searchMatchFn: (item, searchValue) {
-                    return item.value.toString().toLowerCase().contains(
-                      searchValue.toLowerCase(),
-                    );
+                    final query = searchValue.trim().toLowerCase();
+                    if (query.length < 3) return true;
+                    return item.value.toString().toLowerCase().contains(query);
                   },
                 )
               : null,
 
-          // Clears the search field state whenever the menu closes
-          onMenuStateChange: (isOpen) {
-            if (!isOpen) {
-              // no-op placeholder; dropdown_button2 resets search internally
-            }
-          },
-
-          items: items
+          items: widget.items
               .map(
                 (item) => DropdownMenuItem<String>(
                   value: item,
@@ -313,7 +327,7 @@ class CustomDropdownField2 extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 4),
             child: Text(
-              errorText!,
+              widget.errorText!,
               style: const TextStyle(
                 color: Colors.red,
                 fontSize: 12,

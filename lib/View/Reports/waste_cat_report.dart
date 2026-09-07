@@ -1,5 +1,5 @@
 import 'package:contol_officer_app/Controller/reportsController.dart';
-import 'package:contol_officer_app/widgets/waste_cat_report.dart';
+import 'package:contol_officer_app/View/Reports/waste_cat_report_section.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

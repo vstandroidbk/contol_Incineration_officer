@@ -1,7 +1,10 @@
 import 'package:contol_officer_app/Bindings/authbinding.dart';
+import 'package:contol_officer_app/Bindings/customerbinding.dart';
+import 'package:contol_officer_app/Bindings/notificationbinding.dart';
 import 'package:contol_officer_app/Bindings/profilebinding.dart';
 import 'package:contol_officer_app/Splash/splashScreen.dart';
 import 'package:contol_officer_app/View/Concern/concern.dart';
+import 'package:contol_officer_app/View/Customers/customer_details.dart';
 import 'package:contol_officer_app/View/Home/homeview.dart';
 import 'package:contol_officer_app/View/Notifications/notifications.dart';
 import 'package:contol_officer_app/View/Reports/report.dart';
@@ -9,6 +12,7 @@ import 'package:contol_officer_app/View/authentication/email_verify.dart';
 import 'package:contol_officer_app/View/authentication/forgotpswrd.dart';
 import 'package:contol_officer_app/View/authentication/login.dart';
 import 'package:contol_officer_app/View/authentication/new_password.dart';
+import 'package:contol_officer_app/View/profile/changepassword.dart';
 import 'package:contol_officer_app/View/profile/edit_profile.dart';
 import 'package:contol_officer_app/View/profile/profile.dart';
 import 'package:contol_officer_app/widgets/main_nav.dart';
@@ -43,8 +47,19 @@ class AppPages {
     //home
     GetPage(name: AppRoutes.homeview, page: () => const Homeview()),
 
+    GetPage(
+      name: AppRoutes.customerDetails,
+      page: () => const CustomerDetails(),
+      binding:AllCustomersBinding()
+    ),
+
     //notification
-    GetPage(name: AppRoutes.notifications, page: () => const Notifications()),
+    //notification
+    GetPage(
+      name: AppRoutes.notifications,
+      page: () => const Notifications(),
+      binding: OfficerNotificationBinding(),
+    ),
     //reports
     GetPage(name: AppRoutes.reports, page: () => const Report()),
 
@@ -52,7 +67,19 @@ class AppPages {
     GetPage(name: AppRoutes.concern, page: () => const Concern()),
 
     //profile
-    GetPage(name: AppRoutes.profile, page: () => const Profile(),   binding: ProfileBinding(), ),
+    GetPage(
+      name: AppRoutes.profile,
+      page: () => const Profile(),
+      binding: ProfileBinding(),
+    ),
     GetPage(name: AppRoutes.editProfile, page: () => const Editprofile()),
+
+        GetPage(
+      name: AppRoutes.changePassword,
+      page: () => const ChangePassword(),
+      binding: ProfileBinding(),
+    ),
   ];
+
+
 }

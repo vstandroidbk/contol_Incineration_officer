@@ -23,9 +23,11 @@ Future<void> openCategoryFilterSheetReports(
       return StatefulBuilder(
         builder: (context, setSheetState) {
           return Container(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-            ),
+             padding: EdgeInsets.only(
+  bottom: MediaQuery.of(context).viewInsets.bottom +
+      MediaQuery.of(context).padding.bottom +
+      16,
+),
             decoration: const BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.vertical(top: Radius.circular(24)),

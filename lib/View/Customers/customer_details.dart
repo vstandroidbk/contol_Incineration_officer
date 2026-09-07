@@ -7,22 +7,22 @@ import 'package:get/get.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
 
 class CustomerDetails extends StatefulWidget {
-  final String customerId;
+  final String? customerId;
   final String? memberId;
-  final String companyName;
-  final bool isActive;
-  final String memberTill;
-  final String address;
+  final String? companyName;
+  final bool? isActive;
+  final String? memberTill;
+  final String? address;
   final String? profileImageUrl;
 
   const CustomerDetails({
     super.key,
-    required this.customerId,
+    this.customerId,
     this.memberId,
-    required this.companyName,
-    required this.isActive,
-    required this.memberTill,
-    required this.address,
+    this.companyName,
+    this.isActive,
+    this.memberTill,
+    this.address,
     this.profileImageUrl,
   });
 
@@ -33,17 +33,45 @@ class CustomerDetails extends StatefulWidget {
 class _CustomerDetailsState extends State<CustomerDetails> {
   late final AllCustomersController controller;
 
+  late String customerId;
+  String? memberId;
+  late String companyName;
+  late bool isActive;
+  late String memberTill;
+  late String address;
+  String? profileImageUrl;
+
   @override
   void initState() {
     super.initState();
+
+    final args = Get.arguments as Map<String, dynamic>?;
+
+    memberId = widget.memberId ?? args?['memberId']; // 👈 fixed key
+    customerId = widget.customerId ?? args?['customerId'] ?? ''; // 👈 fixed key
+    companyName =
+        widget.companyName ?? args?['companyName'] ?? ''; // 👈 fixed key
+    isActive =
+        widget.isActive ??
+        args?['isActive'] ??
+        true; // 👈 add — was missing from args entirely
+    memberTill =
+        widget.memberTill ??
+        args?['memberTill'] ??
+        ''; // 👈 add — was missing from args entirely
+    address = widget.address ?? args?['address'] ?? ''; // 👈 fixed key
+    profileImageUrl =
+        widget.profileImageUrl ??
+        args?['profileImageUrl']; // 👈 add — was missing from args entirely
+
     controller = Get.isRegistered<AllCustomersController>()
         ? Get.find<AllCustomersController>()
         : Get.put(AllCustomersController());
 
-    if (widget.memberId != null && widget.memberId!.isNotEmpty) {
+    if (memberId != null && memberId!.isNotEmpty) {
       Future.microtask(() {
-        controller.fetchMembershipYears(widget.memberId!);
-        controller.fetchMemberWasteCategory(widget.memberId!);
+        controller.fetchMembershipYears(memberId!);
+        controller.fetchMemberWasteCategory(memberId!);
       });
     }
   }
@@ -81,17 +109,18 @@ class _CustomerDetailsState extends State<CustomerDetails> {
               Obx(() {
                 final detail = controller.memberCategoryDetail.value;
                 return _CustomerIdentityCard(
-                  customerId: widget.customerId,
-                  companyName: detail?.industryName ?? widget.companyName,
+                  customerId:
+                      detail?.memberUserId ??
+                      customerId, // 👈 fixed — was always raw `customerId`
+                  companyName: detail?.industryName ?? companyName,
                   isActive: detail != null
                       ? detail.memberActiveStatus == 1
-                      : widget.isActive,
-                  memberTill: detail?.memberTillDate ?? widget.memberTill,
-                  address: detail?.plantAddress ?? widget.address,
-                  profileImageUrl: detail?.profile ?? widget.profileImageUrl,
+                      : isActive,
+                  memberTill: detail?.memberTillDate ?? memberTill,
+                  address: detail?.plantAddress ?? address,
+                  profileImageUrl: detail?.profile ?? profileImageUrl,
                 );
               }),
-
               const SizedBox(height: 20),
 
               Expanded(
@@ -126,9 +155,9 @@ class _CustomerDetailsState extends State<CustomerDetails> {
                           ? controller.categoryDetailError.value
                           : null,
                       onFilterChanged: (year, quarter) {
-                        if (widget.memberId == null) return;
+                        if (memberId == null || memberId!.isEmpty) return;
                         controller.fetchMemberWasteCategory(
-                          widget.memberId!,
+                          memberId!,
                           year: _parseYear(year),
                           quarter: _parseQuarter(quarter),
                         );
@@ -166,11 +195,15 @@ class _CustomerIdentityCard extends StatelessWidget {
   });
 
   String get _initials {
-    final words = companyName.trim().split(RegExp(r'\s+'));
-    if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
-    return companyName
-        .substring(0, companyName.length >= 2 ? 2 : 1)
-        .toUpperCase();
+    final trimmed = companyName.trim();
+    if (trimmed.isEmpty)
+      return "?"; // 👈 add — handles empty/null-ish company name safely
+
+    final words = trimmed.split(RegExp(r'\s+'));
+    if (words.length >= 2 && words[0].isNotEmpty && words[1].isNotEmpty) {
+      return (words[0][0] + words[1][0]).toUpperCase();
+    }
+    return trimmed.substring(0, trimmed.length >= 2 ? 2 : 1).toUpperCase();
   }
 
   @override

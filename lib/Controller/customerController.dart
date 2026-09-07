@@ -24,23 +24,23 @@ class AllCustomersController extends GetxController {
   var memberCategoryDetail = Rxn<MemberWasteCategoryDetailModel>();
   var memberWasteCategories = <MemberWasteCategoryItemModel>[].obs;
 
- // customerController.dart — sirf search() method change
+  // customerController.dart — sirf search() method change
 
-/// 🔹 Local search filter by Member Id or Company name
-void search(String query) {
-  final q = query.trim().toLowerCase();
-  if (q.isEmpty) {
-    members.assignAll(allMembers);
-  } else {
-    members.assignAll(
-      allMembers.where(
-        (m) =>
-            m.membershipUserId.toLowerCase().contains(q) || // 👈 changed
-            m.industryName.toLowerCase().contains(q),
-      ),
-    );
+  /// 🔹 Local search filter by Member Id or Company name
+  void search(String query) {
+    final q = query.trim().toLowerCase();
+    if (q.isEmpty) {
+      members.assignAll(allMembers);
+    } else {
+      members.assignAll(
+        allMembers.where(
+          (m) =>
+              m.membershipUserId.toLowerCase().contains(q) || // 👈 changed
+              m.industryName.toLowerCase().contains(q),
+        ),
+      );
+    }
   }
-}
 
   /// 🔹 Load years/quarters for a specific member — call before opening the filter sheet
   Future<void> fetchMembershipYears(String memberId) async {

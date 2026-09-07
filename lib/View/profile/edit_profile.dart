@@ -58,16 +58,30 @@ class _EditprofileState extends State<Editprofile> {
     officerNameController = TextEditingController(text: _originalName);
     emailController = TextEditingController(text: _originalEmail);
     phoneController = TextEditingController(text: _originalPhone);
-    joinDateController = TextEditingController(text: _originalJoinDate);
 
-    // 👇 Parse original join date into DateTime for calendar's initialDate, if valid
+    // 👇 Parse original join date into DateTime — try dd/MM/yyyy first, then backend's "MMMM d, yyyy"
     if (_originalJoinDate.isNotEmpty) {
       try {
         _selectedDate = DateFormat('dd/MM/yyyy').parse(_originalJoinDate);
       } catch (_) {
-        _selectedDate = null;
+        try {
+          _selectedDate = DateFormat('MMMM d, yyyy').parse(
+            _originalJoinDate,
+          ); // 👈 handles "August 26, 2026" from backend
+        } catch (_) {
+          _selectedDate = null;
+        }
       }
     }
+
+    // 👇 normalize controller text so field always shows/sends dd/MM/yyyy
+    final normalizedJoinDate = _selectedDate != null
+        ? DateFormat('dd/MM/yyyy').format(_selectedDate!)
+        : _originalJoinDate;
+
+    joinDateController = TextEditingController(
+      text: normalizedJoinDate,
+    ); // 👈 single assignment, removed duplicate
 
     // 👇 Listen to every field — recompute _hasChanges on any edit
     officerNameController.addListener(_checkForChanges);
@@ -92,7 +106,8 @@ class _EditprofileState extends State<Editprofile> {
 
   /// 👇 Compares current field values against original snapshot
   void _checkForChanges() {
-    final changed = officerNameController.text.trim() != _originalName ||
+    final changed =
+        officerNameController.text.trim() != _originalName ||
         emailController.text.trim() != _originalEmail ||
         phoneController.text.trim() != _originalPhone ||
         joinDateController.text.trim() != _originalJoinDate;
@@ -165,11 +180,15 @@ class _EditprofileState extends State<Editprofile> {
   Future<void> _onSavePressed() async {
     if (!_hasChanges) return; // safety guard
 
+    final formattedJoinDate = _selectedDate != null
+        ? DateFormat('dd/MM/yyyy').format(_selectedDate!)
+        : joinDateController.text.trim(); // fallback, shouldn't normally hit
+
     final res = await _profileController.editOfficerProfile(
       fullName: officerNameController.text.trim(),
       email: emailController.text.trim(),
       mobileNumber: phoneController.text.trim(),
-      joiningDate: joinDateController.text.trim(),
+      joiningDate: formattedJoinDate, // 👈 changed
     );
 
     if (!mounted) return;
@@ -195,44 +214,53 @@ class _EditprofileState extends State<Editprofile> {
       appBar: CustomAppBar(
         title: "Profile Update",
         showBack: true,
-        rightWidget: Obx(
-          () {
-            final isUpdating = _profileController.isUpdatingProfile.value;
-            final canSave = _hasChanges && !isUpdating; // 👈 disabled until changes exist
+        rightWidget: Obx(() {
+          final isUpdating = _profileController.isUpdatingProfile.value;
+          final canSave =
+              _hasChanges && !isUpdating; // 👈 disabled until changes exist
 
-            return SizedBox(
-              width: 90,
-              child: ElevatedButton.icon(
-                onPressed: canSave ? _onSavePressed : null,
-                icon: isUpdating
-                    ? const SizedBox(
-                        height: 16,
-                        width: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                      )
-                    : const Icon(LucideIcons.save, color: Colors.white, size: 18),
-                label: Text(
-                  isUpdating ? "..." : "Save",
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: canSave
-                      ? AppColors.primary
-                      : AppColors.primary.withOpacity(0.4), // 👈 visually greyed out when disabled
-                  disabledBackgroundColor: AppColors.primary.withOpacity(0.4),
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  minimumSize: const Size(0, 36),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          return SizedBox(
+            width: 90,
+            child: ElevatedButton.icon(
+              onPressed: canSave ? _onSavePressed : null,
+              icon: isUpdating
+                  ? const SizedBox(
+                      height: 16,
+                      width: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Icon(LucideIcons.save, color: Colors.white, size: 18),
+              label: Text(
+                isUpdating ? "..." : "Save",
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
                 ),
               ),
-            );
-          },
-        ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: canSave
+                    ? AppColors.primary
+                    : AppColors.primary.withOpacity(
+                        0.4,
+                      ), // 👈 visually greyed out when disabled
+                disabledBackgroundColor: AppColors.primary.withOpacity(0.4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                minimumSize: const Size(0, 36),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            ),
+          );
+        }),
       ),
       body: Obx(() {
         final profile = _profileController.officerProfile.value;
@@ -243,16 +271,19 @@ class _EditprofileState extends State<Editprofile> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Obx(() {
-                final networkImage = _profileController.officerProfile.value?.profile;
+                final networkImage =
+                    _profileController.officerProfile.value?.profile;
                 final isUploading = _profileController.isUploadingImage.value;
 
-                ImageProvider avatarImage;
+                // 👇 changed — avatarImage can now be null (icon fallback case)
+                ImageProvider? avatarImage;
                 if (profileImagePath != null) {
                   avatarImage = FileImage(File(profileImagePath!));
                 } else if (networkImage != null && networkImage.isNotEmpty) {
                   avatarImage = NetworkImage(networkImage);
                 } else {
-                  avatarImage = const AssetImage("assets/images/profile.jpg");
+                  avatarImage =
+                      null; // 👈 changed — no more AssetImage fallback
                 }
 
                 return GestureDetector(
@@ -260,7 +291,21 @@ class _EditprofileState extends State<Editprofile> {
                   child: Stack(
                     alignment: Alignment.bottomRight,
                     children: [
-                      CircleAvatar(radius: 40, backgroundImage: avatarImage),
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundColor: AppColors.primary.withOpacity(
+                          0.1,
+                        ), // 👈 add — soft bg behind icon
+                        backgroundImage: avatarImage,
+                        child: avatarImage == null
+                            ? Icon(
+                                LucideIcons
+                                    .user, // 👈 add — icon fallback instead of asset image
+                                size: 28,
+                                color: AppColors.primary,
+                              )
+                            : null,
+                      ),
                       if (isUploading)
                         const Positioned.fill(
                           child: CircleAvatar(
@@ -269,21 +314,30 @@ class _EditprofileState extends State<Editprofile> {
                             child: SizedBox(
                               height: 22,
                               width: 22,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
                       if (!isUploading)
                         Container(
                           padding: const EdgeInsets.all(6),
-                          decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
-                          child: const Icon(LucideIcons.edit, color: Colors.white, size: 18),
+                          decoration: const BoxDecoration(
+                            color: AppColors.primary,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            LucideIcons.edit,
+                            color: Colors.white,
+                            size: 18,
+                          ),
                         ),
                     ],
                   ),
                 );
               }),
-
               const SizedBox(height: 8),
 
               if (profile?.loginId != null && profile!.loginId.isNotEmpty)
@@ -302,7 +356,10 @@ class _EditprofileState extends State<Editprofile> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   "Officer Profile Information",
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
 
@@ -340,12 +397,13 @@ class _EditprofileState extends State<Editprofile> {
                 controller: joinDateController,
                 keyboardType: TextInputType.datetime,
                 enabled: true,
-                readOnly: true,          // user can't type manually — only via dialog
-                showCalendarIcon: true,  // 👈 shows calendar icon suffix
-                onUploadTap: _openJoinDateDialog, // 👈 officer app's CustomTextField reuses onUploadTap for calendar tap
-                onTap: _openJoinDateDialog,       // 👈 tapping the field itself also opens dialog
+                readOnly: true, // user can't type manually — only via dialog
+                showCalendarIcon: true, // 👈 shows calendar icon suffix
+                onUploadTap:
+                    _openJoinDateDialog, // 👈 officer app's CustomTextField reuses onUploadTap for calendar tap
+                onTap:
+                    _openJoinDateDialog, // 👈 tapping the field itself also opens dialog
               ),
-
             ],
           ),
         );

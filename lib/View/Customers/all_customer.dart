@@ -1,4 +1,5 @@
 import 'package:contol_officer_app/Controller/customerController.dart';
+import 'package:contol_officer_app/Routes/app_routes.dart';
 import 'package:contol_officer_app/View/Customers/customer_card.dart';
 import 'package:contol_officer_app/View/Customers/customer_details.dart';
 import 'package:contol_officer_app/widgets/app_bar.dart';
@@ -132,16 +133,17 @@ class _AllCustomersState extends State<AllCustomers> {
                         pincode: c.pinCode,
                         profileImageUrl: c.profile,
                         onViewDetails: () {
-                          Get.to(
-                            () => CustomerDetails(
-                              customerId: c.membershipUserId,
-                              memberId: c.membershipId,
-                              companyName: c.industryName,
-                              isActive: c.isActive,
-                              memberTill: c.validTill ?? "-",
-                              address: c.plantAddress ?? "-", // 👈 changed
-                              profileImageUrl: c.profile,
-                            ),
+                          Get.toNamed(
+                            AppRoutes.customerDetails,
+                            arguments: {
+                              'customerId': c.membershipUserId,
+                              'memberId': c.membershipId,
+                              'companyName': c.industryName,
+                              'isActive': c.isActive,
+                              'memberTill': c.validTill ?? "-",
+                              'address': c.plantAddress ?? "-",
+                              'profileImageUrl': c.profile,
+                            },
                           );
                         },
                       );

@@ -17,6 +17,9 @@ class AppRoutes {
   //notifications
   static const String notifications = '/notifications';
 
+  //customers
+  static const String customerDetails = '/customer-details';
+
   //reports
   static const String reports = '/reports';
 
@@ -29,4 +32,6 @@ class AppRoutes {
   //profile
   static const String profile = '/profile';
   static const String editProfile = '/editProfile';
+
+    static const String changePassword = '/changePassword';
 }

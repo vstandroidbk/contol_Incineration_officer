@@ -2,10 +2,12 @@ class OfficerMemberModel {
   final String industryName;
   final String pinCode;
   final String membershipId;
+  final String membershipUserId;
   final String? validFrom;
   final String? validTill;
   final bool isActive;
   final String? profile;
+  final String? plantAddress; // ✅ added
 
   OfficerMemberModel({
     required this.industryName,
@@ -15,6 +17,8 @@ class OfficerMemberModel {
     this.validTill,
     required this.isActive,
     this.profile,
+    this.plantAddress, // ✅ added
+    this.membershipUserId = '',
   });
 
   factory OfficerMemberModel.fromJson(Map<String, dynamic> json) {
@@ -22,10 +26,13 @@ class OfficerMemberModel {
       industryName: json['industryName'] ?? '',
       pinCode: json['pinCode'] ?? '',
       membershipId: json['membershipId'] ?? '',
+      membershipUserId: json['membershipUserId'] ?? '',
       validFrom: json['validFrom'],
       validTill: json['validTill'],
       isActive: json['isActive'] ?? false,
       profile: json['profile'],
+      plantAddress: json['plantAddress'], // ✅ added
+      
     );
   }
 }
@@ -79,6 +86,78 @@ class MembershipYearsModel {
       quarters: json['quarters'] != null
           ? List<int>.from(json['quarters'])
           : <int>[],
+    );
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// 🔹 Category Members (get-officer-members-by-category response)
+// ══════════════════════════════════════════════════════════════
+class CategoryMemberModel {
+  final String memberProfileId;
+  final String membershipId;
+  final String membershipUserId;
+  final String industryName;
+  final String pinCode;
+  final String plantAddress;
+  final String validFrom;
+  final String validTill;
+  final String? profile;
+  final bool isActive;
+  final String updatedAt;
+
+  CategoryMemberModel({
+    required this.memberProfileId,
+    required this.membershipId,
+    required this.membershipUserId,
+    required this.industryName,
+    required this.pinCode,
+    required this.plantAddress,
+    required this.validFrom,
+    required this.validTill,
+    this.profile,
+    required this.isActive,
+    required this.updatedAt,
+  });
+
+  factory CategoryMemberModel.fromJson(Map<String, dynamic> json) {
+    return CategoryMemberModel(
+      memberProfileId: json['memberProfileId'] ?? '',
+      membershipId: json['membershipId'] ?? '',
+      membershipUserId: json['membershipUserId'] ?? '',
+      industryName: json['industryName'] ?? '',
+      pinCode: json['pinCode'] ?? '',
+      plantAddress: json['plantAddress'] ?? '',
+      validFrom: json['validFrom'] ?? '',
+      validTill: json['validTill'] ?? '',
+      profile: json['profile'],
+      isActive: json['isActive'] ?? false,
+      updatedAt: json['updatedAt'] ?? '',
+    );
+  }
+}
+
+class CategoryMembersResponseModel {
+  final String categoryId;
+  final int memberCount;
+  final int pincodeCount;
+  final List<CategoryMemberModel> members;
+
+  CategoryMembersResponseModel({
+    required this.categoryId,
+    required this.memberCount,
+    required this.pincodeCount,
+    required this.members,
+  });
+
+  factory CategoryMembersResponseModel.fromJson(Map<String, dynamic> json) {
+    return CategoryMembersResponseModel(
+      categoryId: json['categoryId'] ?? '',
+      memberCount: json['memberCount'] ?? 0,
+      pincodeCount: json['pincodeCount'] ?? 0,
+      members: (json['members'] as List<dynamic>? ?? [])
+          .map((m) => CategoryMemberModel.fromJson(m))
+          .toList(),
     );
   }
 }
