@@ -43,6 +43,7 @@ class _AllCustomersState extends State<AllCustomers> {
       appBar: const CustomAppBar(
         title: "All Customers",
         subtitle: "Full list under your district",
+        showBack: true,
       ),
       body: SafeArea(
         child: Padding(

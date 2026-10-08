@@ -1,7 +1,6 @@
 import 'package:contol_officer_app/API%20Service/networkHelper.dart';
 import 'package:contol_officer_app/Routes/app_routes.dart';
 import 'package:contol_officer_app/utils/appSession.dart';
-import 'package:contol_officer_app/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -40,7 +39,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   // ─────────────────────────────────────────
   // ANIMATIONS (design copied from customer app)
-   void _setupAnimations() {
+  void _setupAnimations() {
     _logoController = AnimationController(
       duration: const Duration(milliseconds: 4000),
       vsync: this,
@@ -162,7 +161,6 @@ class _SplashScreenState extends State<SplashScreen>
     super.dispose();
   }
 
- 
   // ─────────────────────────────────────────
   // NAVIGATION LOGIC (unchanged from officer app)
   // ─────────────────────────────────────────
@@ -189,8 +187,6 @@ class _SplashScreenState extends State<SplashScreen>
       Get.offAllNamed(AppRoutes.login);
     }
   }
-
- 
 
   @override
   Widget build(BuildContext context) {
@@ -535,5 +531,4 @@ class _SplashScreenState extends State<SplashScreen>
       fit: BoxFit.fill,
     );
   }
-
 }

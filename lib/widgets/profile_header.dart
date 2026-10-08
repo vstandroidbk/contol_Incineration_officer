@@ -5,9 +5,10 @@ import 'package:get/get.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
 
 class Profileheader extends StatelessWidget {
-  final String? profileImageUrl; // 👈 add this
+  final String? profileImageUrl;
+  final VoidCallback? onImageTap; // 👈 add — fires only when avatar itself is tapped
 
-  const Profileheader({super.key, this.profileImageUrl}); // 👈 add this
+  const Profileheader({super.key, this.profileImageUrl, this.onImageTap});
 
   static const Color gradient1 = Color(0xFF0C8848);
   static const Color gradient2 = Color(0xFF333F8E);
@@ -105,25 +106,27 @@ class Profileheader extends StatelessWidget {
           ),
 
           // PROFILE IMAGE (CENTER BOTTOM — OUTSIDE HEADER)
+                  // PROFILE IMAGE (CENTER BOTTOM — OUTSIDE HEADER)
           Positioned(
             bottom: 25,
-            child: CircleAvatar(
-              radius: 55,
-              backgroundColor: Colors.white,
+            child: GestureDetector(                     // 👈 add — only this wraps the tap
+              onTap: onImageTap,
               child: CircleAvatar(
-                radius: 50,
-                 backgroundImage:
-                    (profileImageUrl != null && profileImageUrl!.isNotEmpty)
-                    ? NetworkImage(profileImageUrl!)
-                    : null, // 👈 changed — no more asset fallback
-                child: (profileImageUrl == null || profileImageUrl!.isEmpty)
-                    ? Icon(
-                        LucideIcons.user, 
-                        size: 30,
-                        
-                      )
-                    : null,
-            
+                radius: 55,
+                backgroundColor: Colors.white,
+                child: CircleAvatar(
+                  radius: 50,
+                  backgroundImage:
+                      (profileImageUrl != null && profileImageUrl!.isNotEmpty)
+                      ? NetworkImage(profileImageUrl!)
+                      : null,
+                  child: (profileImageUrl == null || profileImageUrl!.isEmpty)
+                      ? Icon(
+                          LucideIcons.user,
+                          size: 30,
+                        )
+                      : null,
+                ),
               ),
             ),
           ),

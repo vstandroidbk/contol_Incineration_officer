@@ -3,39 +3,58 @@ import 'package:contol_officer_app/API%20Service/networkHelper.dart';
 import 'package:contol_officer_app/utils/appSession.dart';
 import 'package:contol_officer_app/utils/snackbar.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:get/get.dart' hide FormData, MultipartFile;
 
 class ApiClient extends GetxService {
   late Dio dio;
 
-  // ✅ Global flag — prevents duplicate "no internet" snackbars
-  // when multiple APIs fire simultaneously (e.g. home screen init)
   static DateTime? _lastNoInternetSnackbar;
+
+  // ✅ NEW: in-flight request de-duplication
+  // Agar same endpoint+body wali request already pending hai, naya call mat karo —
+  // existing Future ka result return kar do. Ye "get-Officer-notifications 2x call"
+  // jaisa pattern globally rok dega, chahe wo kisi bhi screen se trigger ho.
+  static final Map<String, Future<Map<String, dynamic>>> _pendingRequests = {};
 
   Future<ApiClient> init() async {
     dio = Dio(
       BaseOptions(
         baseUrl: ApiUrls.liveUrl,
-        connectTimeout: const Duration(seconds: 30),
-        receiveTimeout: const Duration(seconds: 30),
-        headers: {"Content-Type": "application/json"},
+        // ⬇️ CHANGED: 30s -> 12s. 30s matlab user 30 second tak "hang" dekh sakta hai
+        // bina kisi feedback ke. Mobile network pe agar 12s me response nahi aaya,
+        // usually aage bhi nahi aayega — fail fast better hai.
+        connectTimeout: const Duration(seconds: 12),
+        receiveTimeout: const Duration(seconds: 12),
+        headers: {
+          "Content-Type": "application/json",
+          // ✅ NEW: server agar gzip support karta hai to response size
+          // 60-80% tak chhota ho sakta hai — bina kisi aur change ke.
+          "Accept-Encoding": "gzip",
+        },
       ),
     );
 
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
-          print("➡️ ${options.method} ${options.uri}");
-          print("Headers: ${options.headers}");
-          print("Body: ${options.data}");
+          // ⬇️ CHANGED: sirf debug build me print hoga, release me nahi
+          if (kDebugMode) {
+            print("➡️ ${options.method} ${options.uri}");
+            print("Body: ${options.data}");
+          }
           handler.next(options);
         },
         onResponse: (response, handler) {
-          print("⬅️ Response: ${response.data}");
+          if (kDebugMode) {
+            print("⬅️ Response: ${response.data}");
+          }
           handler.next(response);
         },
         onError: (error, handler) {
-          print("❌ RAW API ERROR: ${error.message}");
+          if (kDebugMode) {
+            print("❌ RAW API ERROR: ${error.message}");
+          }
           handler.next(error);
         },
       ),
@@ -44,8 +63,6 @@ class ApiClient extends GetxService {
     return this;
   }
 
-  /// ✅ Show snackbar at most once every 4 seconds globally
-  /// Prevents snackbar spam when 5+ APIs fail simultaneously offline
   static void _showNoInternetOnce() {
     final now = DateTime.now();
     if (_lastNoInternetSnackbar == null ||
@@ -55,18 +72,38 @@ class ApiClient extends GetxService {
     }
   }
 
-  /// ✅ Normal POST
   Future<Map<String, dynamic>> post(
     String endpoint, {
     Map<String, dynamic>? body,
     bool useToken = true,
     bool attachUserId = true,
   }) async {
+    // ✅ NEW: de-dup key — same endpoint + same body = same in-flight request
+    final dedupeKey = "$endpoint|${body?.toString() ?? ''}";
+    if (_pendingRequests.containsKey(dedupeKey)) {
+      if (kDebugMode) print("♻️ Reusing in-flight request: $dedupeKey");
+      return _pendingRequests[dedupeKey]!;
+    }
+
+    final future = _postInternal(endpoint, body: body, useToken: useToken, attachUserId: attachUserId);
+    _pendingRequests[dedupeKey] = future;
+
     try {
-      /// 1️⃣ Internet check
+      return await future;
+    } finally {
+      _pendingRequests.remove(dedupeKey);
+    }
+  }
+
+  Future<Map<String, dynamic>> _postInternal(
+    String endpoint, {
+    Map<String, dynamic>? body,
+    bool useToken = true,
+    bool attachUserId = true,
+  }) async {
+    try {
       final hasInternet = await NetworkHelper.hasInternet();
       if (!hasInternet) {
-        // ✅ Show snackbar globally — throttled to avoid spam
         _showNoInternetOnce();
         return {
           "status": "FAILURE",
@@ -75,22 +112,20 @@ class ApiClient extends GetxService {
         };
       }
 
-      /// 2️⃣ Prepare headers
       Map<String, dynamic> headers = {"Content-Type": "application/json"};
 
-      if (useToken) {
-        String? token = await AppSession.getToken();
-        if (token != null && token.isNotEmpty) {
-          headers["Authorization"] = "Bearer $token";
-        }
-      }
+      // ⬇️ CHANGED: teeno reads ab parallel me chalte hain, sequential nahi
+      final results = await Future.wait([
+        useToken ? AppSession.getToken() : Future.value(null),
+        AppSession.getPlayerId(),
+        attachUserId ? AppSession.getUserId() : Future.value(null),
+      ]);
+      final token = results[0];
+      final playerId = results[1];
+      final userId = results[2];
 
-      /// 3️⃣ Prepare body
-      String? playerId = await AppSession.getPlayerId();
-      String? userId;
-
-      if (attachUserId) {
-        userId = await AppSession.getUserId();
+      if (useToken && token != null && token.isNotEmpty) {
+        headers["Authorization"] = "Bearer $token";
       }
 
       final data = {
@@ -100,7 +135,6 @@ class ApiClient extends GetxService {
         ...?body,
       };
 
-      /// 4️⃣ Make request
       final response = await dio.post(
         endpoint,
         data: data,
@@ -115,7 +149,7 @@ class ApiClient extends GetxService {
     } on DioException catch (e) {
       return _handleDioError(e);
     } catch (e) {
-      print("❌ UNKNOWN ERROR: $e");
+      if (kDebugMode) print("❌ UNKNOWN ERROR: $e");
       return {
         "status": "FAILURE",
         "message": "Something went wrong.",
@@ -124,7 +158,6 @@ class ApiClient extends GetxService {
     }
   }
 
-  /// ✅ Multipart POST
   Future<Map<String, dynamic>> postMultipart(
     String endpoint, {
     required Map<String, dynamic> fields,
@@ -148,7 +181,6 @@ class ApiClient extends GetxService {
       }
 
       final formData = FormData();
-
       formData.fields.add(MapEntry("env_type", ApiUrls.envType));
 
       if (userId != null) {
@@ -187,7 +219,7 @@ class ApiClient extends GetxService {
     } on DioException catch (e) {
       return _handleDioError(e);
     } catch (e) {
-      print("❌ MULTIPART UNKNOWN ERROR: $e");
+      if (kDebugMode) print("❌ MULTIPART UNKNOWN ERROR: $e");
       return {
         "status": "FAILURE",
         "message": "Something went wrong.",
@@ -196,7 +228,6 @@ class ApiClient extends GetxService {
     }
   }
 
-  /// ✅ Centralized Error Handler
   Map<String, dynamic> _handleDioError(DioException e) {
     String errorMessage = "Something went wrong.";
 
@@ -225,7 +256,7 @@ class ApiClient extends GetxService {
         errorMessage = "Unexpected error occurred.";
     }
 
-    print("❌ CLEAN ERROR: $errorMessage");
+    if (kDebugMode) print("❌ CLEAN ERROR: $errorMessage");
 
     return {"status": "FAILURE", "message": errorMessage, "data": null};
   }

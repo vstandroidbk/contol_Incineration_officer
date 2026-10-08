@@ -1,6 +1,6 @@
 class WasteCategoryReportModel {
-  final String year; // API may send int(2026) or "ALL" — normalized to String
-  final String quarter; // API may send "Q1" or "ALL"
+  final String year;
+  final String quarter;
   final List<WasteCategoryReportItem> response;
 
   WasteCategoryReportModel({
@@ -26,9 +26,9 @@ class WasteCategoryReportItem {
   final String categoryId;
   final String categoryTitle;
   final String categoryNumber;
-  final int totalAllocated;
-  final int totalUsed;
-  final int remaining;
+  final double totalAllocated; // 👈 changed int → double
+  final double totalUsed; // 👈 changed int → double
+  final double remaining; // 👈 changed int → double
   final String allocatedQuantityType;
   final String usedQuantityType;
   final String remainingQuantityType;
@@ -45,17 +45,24 @@ class WasteCategoryReportItem {
     required this.remainingQuantityType,
   });
 
+  // 👇 add — safely handles int, double, or numeric string from backend
+  static double _parseNum(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is num) return value.toDouble();
+    return double.tryParse(value.toString()) ?? 0.0;
+  }
+
   factory WasteCategoryReportItem.fromJson(Map<String, dynamic> json) {
     return WasteCategoryReportItem(
-      categoryId: json['categoryId'] ?? '',
-      categoryTitle: json['categoryTitle'] ?? '',
-      categoryNumber: json['categoryNumber'] ?? '',
-      totalAllocated: (json['totalAllocated'] ?? 0) as int,
-      totalUsed: (json['totalUsed'] ?? 0) as int,
-      remaining: (json['remaining'] ?? 0) as int,
-      allocatedQuantityType: json['allocatedQuantityType'] ?? '',
-      usedQuantityType: json['usedQuantityType'] ?? '',
-      remainingQuantityType: json['remainingQuantityType'] ?? '',
+      categoryId: json['categoryId']?.toString() ?? '',
+      categoryTitle: json['categoryTitle']?.toString() ?? '',
+      categoryNumber: json['categoryNumber']?.toString() ?? '',
+      totalAllocated: _parseNum(json['totalAllocated']),
+      totalUsed: _parseNum(json['totalUsed']),
+      remaining: _parseNum(json['remaining']),
+      allocatedQuantityType: json['allocatedQuantityType']?.toString() ?? '',
+      usedQuantityType: json['usedQuantityType']?.toString() ?? '',
+      remainingQuantityType: json['remainingQuantityType']?.toString() ?? '',
     );
   }
 }

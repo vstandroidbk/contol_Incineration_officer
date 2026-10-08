@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "964528386590",
+    "project_id": "contol-regional-officer",
+    "storage_bucket": "contol-regional-officer.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:964528386590:android:46dc3dddb9b62fff27340f",
+        "android_client_info": {
+          "package_name": "com.contol.roapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBdVTvrYEfVDRxq3JgUxSUbFctr-jva_sc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

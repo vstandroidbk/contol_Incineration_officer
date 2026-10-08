@@ -66,14 +66,16 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     if (showBack) ...[
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: GestureDetector(
-                          onTap: onBackTap ?? () => Navigator.of(context).pop(),
+                      InkWell(
+                        // 👈 changed — GestureDetector → InkWell, wraps the WHOLE circle now
+                        onTap: onBackTap ?? () => Navigator.of(context).pop(),
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.withOpacity(0.2),
+                            shape: BoxShape.circle,
+                          ),
                           child: const Icon(
                             Icons.arrow_back_ios_new,
                             size: 18,
@@ -83,7 +85,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       ),
                       const SizedBox(width: 12),
                     ],
-
                     // TITLE AND OPTIONAL SUBTITLE
                     Expanded(
                       child: _hasSubtitle

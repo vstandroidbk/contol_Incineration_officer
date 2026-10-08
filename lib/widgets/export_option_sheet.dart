@@ -8,7 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
 
-void openExportOptionsSheet(
+Future<void> openExportOptionsSheet(
+  // 👈 void ki jagah Future<void>
   BuildContext context, {
   required List<String> quarters,
   required List<String> years,
@@ -33,7 +34,7 @@ void openExportOptionsSheet(
   reportController.previewedReport.value = null;
   reportController.checkStatusMessage.value = '';
 
-  showModalBottomSheet(
+  return showModalBottomSheet(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
@@ -215,7 +216,7 @@ void openExportOptionsSheet(
                     }).toList(),
                   ),
 
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 16),
 
                   // ── Year ──────────────────────────
                   const Text(
@@ -238,7 +239,7 @@ void openExportOptionsSheet(
                       });
                     },
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 10),
 
                   // ── Live status: only reflects the LAST time
                   // "View PDF" was pressed — not every filter tweak.

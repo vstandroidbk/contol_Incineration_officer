@@ -1,6 +1,7 @@
 import 'package:contol_officer_app/services/Auth/authService.dart';
 import 'package:contol_officer_app/utils/appSession.dart';
 import 'package:get/get.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 class AuthController extends GetxController {
   final AuthService _authService = AuthService();
@@ -30,9 +31,9 @@ class AuthController extends GetxController {
 
         //user id save
         await AppSession.saveUserId(id);
+
         // ✅ Re-subscribe to push notifications for this user
-        // OneSignal.login(userId.trim());
-        // OneSignal.User.pushSubscription.optIn();
+        await _linkOneSignal(id);
 
         // 🖨️ DEBUG LOGS
         print("✅ LOGIN SUCCESS");
@@ -53,6 +54,34 @@ class AuthController extends GetxController {
       };
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  /// 🔔 Link OneSignal to the logged-in officer + persist push subscription id
+  Future<void> _linkOneSignal(String id) async {
+    try {
+      if (id.isEmpty) return;
+
+      OneSignal.login(id.trim());
+      OneSignal.User.pushSubscription.optIn();
+
+      final pushId = OneSignal.User.pushSubscription.id;
+      if (pushId != null && pushId.isNotEmpty) {
+        await AppSession.savePlayerId(pushId);
+        print("🚀 OneSignal linked — User: $id, Push ID: $pushId");
+      } else {
+        // Push id not ready yet (subscription still registering) —
+        // add a one-time observer so we capture it as soon as it arrives.
+        OneSignal.User.pushSubscription.addObserver((state) {
+          final lateId = OneSignal.User.pushSubscription.id;
+          if (lateId != null && lateId.isNotEmpty) {
+            AppSession.savePlayerId(lateId);
+            print("🚀 OneSignal push ID captured late: $lateId");
+          }
+        });
+      }
+    } catch (e) {
+      print("❌ OneSignal link error: $e");
     }
   }
 
@@ -99,30 +128,29 @@ class AuthController extends GetxController {
   }
 
   /// 🔐 Reset Password API
- /// 🔐 Reset Password API
-Future<Map<String, dynamic>> resetPassword({
-  required String id,          // 👈 renamed from userloginDetail
-  required String password,
-}) async {
-  try {
-    isLoading.value = true;
+  Future<Map<String, dynamic>> resetPassword({
+    required String id,
+    required String password,
+  }) async {
+    try {
+      isLoading.value = true;
 
-    final res = await _authService.resetPassword(
-      id: id,                  // 👈 pass through as id
-      password: password,
-    );
+      final res = await _authService.resetPassword(
+        id: id,
+        password: password,
+      );
 
-    print("🔁 RESET PASSWORD RESPONSE: $res");
-    return res;
-  } catch (e) {
-    print("❌ RESET PASSWORD ERROR: $e");
-    return {
-      "status": "FAILURE",
-      "message": "Something went wrong. Please try again.",
-      "data": null,
-    };
-  } finally {
-    isLoading.value = false;
+      print("🔁 RESET PASSWORD RESPONSE: $res");
+      return res;
+    } catch (e) {
+      print("❌ RESET PASSWORD ERROR: $e");
+      return {
+        "status": "FAILURE",
+        "message": "Something went wrong. Please try again.",
+        "data": null,
+      };
+    } finally {
+      isLoading.value = false;
+    }
   }
-}
 }

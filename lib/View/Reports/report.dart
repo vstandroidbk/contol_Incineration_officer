@@ -17,16 +17,8 @@ class Report extends StatefulWidget {
 
 class _ReportState extends State<Report> {
   final ReportController controller = Get.put(ReportController());
+  bool _isOpeningExportSheet = false;
 
-  // Same static data used by export sheet
-  static const List<String> memberNames = [
-    "Medical Center A",
-    "Green Energy Co",
-    "ABC Industries",
-    "Sunrise Pharma",
-    "BlueSky Logistics",
-    "Nashik Textiles",
-  ];
   static const List<String> quarters = ["Q1", "Q2", "Q3", "Q4"];
   static const List<String> years = [
     "2023-24",
@@ -34,6 +26,26 @@ class _ReportState extends State<Report> {
     "2025-26",
     "2026-27",
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    controller.resetFilter();
+  }
+
+  void _handleExportTap() {
+    if (_isOpeningExportSheet) return; // double-tap guard
+    setState(() => _isOpeningExportSheet = true);
+
+    openExportOptionsSheet(context, quarters: quarters, years: years);
+
+    // 👈 sheet ka route push ho chuka hai (showModalBottomSheet synchronous
+    // hai); ek frame render hone ka wait karo — tabhi sheet screen pe
+    // dikhti hai — phir spinner hatao.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) setState(() => _isOpeningExportSheet = false);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,14 +57,9 @@ class _ReportState extends State<Report> {
         title: "Reports",
         subtitle: "Waste Usage analytics for your district",
         rightWidget: InkWell(
-          onTap: () {
-            openExportOptionsSheet(
-              context,
-              //memberNames: memberNames,
-              quarters: quarters,
-              years: years,
-            );
-          },
+          onTap: _handleExportTap,
+          splashColor: Colors.white.withOpacity(0.3),
+          highlightColor: Colors.white.withOpacity(0.15),
           borderRadius: BorderRadius.circular(10),
           child: Container(
             padding: const EdgeInsets.all(9),
@@ -60,11 +67,20 @@ class _ReportState extends State<Report> {
               color: AppColors.primary,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(
-              LucideIcons.download,
-              color: Colors.white,
-              size: 18,
-            ),
+            child: _isOpeningExportSheet
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Icon(
+                    LucideIcons.download,
+                    color: Colors.white,
+                    size: 18,
+                  ),
           ),
         ),
       ),

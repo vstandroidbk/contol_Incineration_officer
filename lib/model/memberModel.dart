@@ -32,7 +32,6 @@ class OfficerMemberModel {
       isActive: json['isActive'] ?? false,
       profile: json['profile'],
       plantAddress: json['plantAddress'], // ✅ added
-      
     );
   }
 }

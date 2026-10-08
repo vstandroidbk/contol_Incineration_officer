@@ -1,13 +1,28 @@
 class ValidationUtil {
   /// Validates 10-digit mobile number
   static String? validateMobile(String value) {
-    if (value.trim().isEmpty) {
+    if (value.isEmpty) {
       return "Mobile number is required";
     }
 
-    final RegExp mobileReg = RegExp(r'^[0-9]{10}$');
-    if (!mobileReg.hasMatch(value.trim())) {
-      return "Invalid mobile number format";
+    // Remove spaces if any
+    value = value.trim();
+
+    // Check length first
+    if (value.length < 10) {
+      return "Enter 10 digit valid mobile number";
+    }
+
+    // If more than 10 digits (optional check)
+    if (value.length > 10) {
+      return "Mobile number should be exactly 10 digits";
+    }
+
+    // Check valid Indian mobile pattern (starts with 6-9)
+    final RegExp mobileRegex = RegExp(r'^[6-9]\d{9}$');
+
+    if (!mobileRegex.hasMatch(value)) {
+      return "Enter valid mobile number";
     }
 
     return null;

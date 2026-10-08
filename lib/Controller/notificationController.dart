@@ -7,17 +7,31 @@ class OfficerNotificationController extends GetxController {
   final OfficerNotificationService _service = OfficerNotificationService();
 
   var isLoading = false.obs;
-  var isMarkingAllRead = false.obs; // ADD THIS
+  var isMarkingAllRead = false.obs;
   var errorMessage = ''.obs;
   var notifications = <OfficerNotificationModel>[].obs;
 
-  var isDeleting = false.obs; // ADD near other .obs fields
+  var isDeleting = false.obs;
+
+  /// 🔔 Bell-shake trigger (set true by OneSignal foreground handler)
+  var shouldAnimateBell = false.obs;
 
   int get unreadCount => notifications.where((n) => !n.read).length;
 
   @override
   void onInit() {
     super.onInit();
+    fetchOfficerNotifications();
+  }
+
+  /// 🔹 Called from OneSignal foreground listener in main.dart
+  void onPushReceived() {
+    // Force reset to false first so ever()/Obx always fires on next true
+    shouldAnimateBell.value = false;
+    Future.microtask(() {
+      shouldAnimateBell.value = true;
+    });
+
     fetchOfficerNotifications();
   }
 
@@ -58,7 +72,7 @@ class OfficerNotificationController extends GetxController {
       final res = await _service.readAllOfficerNotifications();
 
       if (res["status"] == "SUCCESS") {
-        await fetchOfficerNotifications(); // re-fetch, gets fresh read flags from API
+        await fetchOfficerNotifications();
         Get.snackbar(
           'Success',
           res["message"] ?? 'All notifications marked as read',

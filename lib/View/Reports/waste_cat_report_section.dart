@@ -3,16 +3,6 @@ import 'package:contol_officer_app/widgets/cat_filter_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
 
-/// Reusable waste category breakdown block.
-/// Used in Reports (all members) — years are freely chosen by the user.
-///
-/// NOTE: This widget is fully CONTROLLED — selectedYear/selectedQuarter are
-/// passed in from the parent (backed by ReportController's Rx state), not
-/// held as internal State. Keeping the selection in a GetxController's Rx
-/// values (instead of local State) means the filter survives even if this
-/// widget's subtree gets destroyed and rebuilt — e.g. when a parent
-/// LoaderWrapper swaps in a shimmer placeholder during isLoading and swaps
-/// back once the fetch completes, which would otherwise wipe local State.
 class WasteCategoryReportSection extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -253,11 +243,12 @@ class _EmptyState extends StatelessWidget {
 class _CategoryRow extends StatelessWidget {
   final String title;
   final String number;
-  final int authorized;
-  final int used;
+  final num
+  authorized; // 👈 changed int → num — accepts both int & double from map
+  final num used; // 👈 changed int → num
   final String unit;
   final bool active;
-  final String? memberName; // shown only in "all members" report view
+  final String? memberName;
 
   const _CategoryRow({
     required this.title,
@@ -274,9 +265,12 @@ class _CategoryRow extends StatelessWidget {
     final double progress = authorized == 0
         ? 0
         : (used / authorized).clamp(0, 1).toDouble();
+
     final bool isFull = used >= authorized;
     final Color barColor = isFull ? AppColors.error : AppColors.primary;
     final statusColor = active ? AppColors.success : AppColors.error;
+    String _fmt(num v) =>
+        v == v.roundToDouble() ? v.toInt().toString() : v.toString();
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -360,14 +354,14 @@ class _CategoryRow extends StatelessWidget {
               Expanded(
                 child: _ValueBlock(
                   label: "Authorized",
-                  value: "$authorized $unit",
+                  value: "${_fmt(authorized)} $unit", // 👈 changed
                   color: AppColors.bodytextColor,
                 ),
               ),
               Expanded(
                 child: _ValueBlock(
                   label: "Used",
-                  value: "$used $unit",
+                  value: "${_fmt(used)} $unit", // 👈 changed
                   color: barColor,
                 ),
               ),

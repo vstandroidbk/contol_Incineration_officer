@@ -24,6 +24,7 @@ class _ProfileState extends State<Profile> {
   @override
   void initState() {
     super.initState();
+    _profileController.isLoading.value = true; 
     Future.microtask(() => _profileController.fetchOfficerProfile());
   }
 
@@ -119,14 +120,14 @@ class _ProfileState extends State<Profile> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      GestureDetector(
-                        onTap: () {
+                      Profileheader(
+                        profileImageUrl: profile?.profile,
+                        onImageTap: () {
                           if (profile?.profile != null &&
                               profile!.profile!.isNotEmpty) {
                             _showProfileImage(context, profile.profile!);
                           }
                         },
-                        child: Profileheader(profileImageUrl: profile?.profile),
                       ),
                     ],
                   ),
@@ -519,7 +520,7 @@ class _ProfileState extends State<Profile> {
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                   ),
-                                  child: const Text("LogOut"),
+                                  child: const Text("Logout"),
                                 ),
                               ),
                             ],

@@ -12,6 +12,7 @@ class MainScreen extends StatelessWidget {
   final navController = Get.find<BottomNavBarController>();
 
   final List<Widget> screens = [Homeview(), Customers(),  Report(), Profile()];
+  
 
   @override
   Widget build(BuildContext context) {

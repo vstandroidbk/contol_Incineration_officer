@@ -1,7 +1,10 @@
 package com.contol.roapp
 
-import android.app.DownloadManager
 import android.content.BroadcastReceiver
+import android.app.DownloadManager
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
@@ -12,6 +15,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import androidx.core.app.NotificationCompat
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -21,6 +25,10 @@ class MainActivity : FlutterActivity() {
 
     private val CHANNEL = "com.contol.incineration/media_scanner"
     private var methodChannel: MethodChannel? = null
+
+    // 🆕 Notification setup
+    private val DOWNLOAD_CHANNEL_ID = "contol_downloads"
+    private val DOWNLOAD_NOTIF_ID = 1001
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -34,7 +42,7 @@ class MainActivity : FlutterActivity() {
             when (call.method) {
 
                 "startDownload" -> {
-                    
+
                     val url         = call.argument<String>("url")
                      println("🔗 DOWNLOAD URL (kotlin): \"$url\"")
                     val fileName    = call.argument<String>("fileName") ?: "certificate.pdf"
@@ -172,44 +180,142 @@ class MainActivity : FlutterActivity() {
         }
     }
 
+    // 🆕 Creates the notification channel (required on Android 8.0 / API 26+).
+    // IMPORTANCE_LOW = no sound/heads-up popup, just sits quietly in the shade —
+    // matches typical "file download" notification behavior.
+    private fun ensureDownloadNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                DOWNLOAD_CHANNEL_ID,
+                "Downloads",
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = "Shows file download progress and completion"
+            }
+            val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            nm.createNotificationChannel(channel)
+        }
+    }
+
+    // 🆕 Ongoing "Downloading..." notification with an indeterminate progress bar.
+    // Posted right before we start writing bytes in saveFileToDownloads().
+    private fun showDownloadingNotification(fileName: String) {
+        ensureDownloadNotificationChannel()
+
+        val builder = NotificationCompat.Builder(applicationContext, DOWNLOAD_CHANNEL_ID)
+            .setSmallIcon(android.R.drawable.stat_sys_download)
+            .setContentTitle("Downloading")
+            .setContentText(fileName)
+            .setOngoing(true)
+            .setOnlyAlertOnce(true)
+            .setProgress(0, 0, true) // indeterminate spinner-style bar
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+
+        val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        nm.notify(DOWNLOAD_NOTIF_ID, builder.build())
+    }
+
+    // 🆕 Replaces the ongoing notification with a tappable "Download complete" one.
+    // Tapping it opens the saved PDF via the MediaStore content Uri.
+    private fun showDownloadCompleteNotification(fileName: String, fileUri: Uri) {
+        val openIntent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(fileUri, "application/pdf")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            applicationContext,
+            0,
+            openIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val builder = NotificationCompat.Builder(applicationContext, DOWNLOAD_CHANNEL_ID)
+            .setSmallIcon(android.R.drawable.stat_sys_download_done)
+            .setContentTitle("Download complete")
+            .setContentText(fileName)
+            .setOngoing(false)
+            .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+
+        val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        nm.notify(DOWNLOAD_NOTIF_ID, builder.build())
+    }
+
+    // 🆕 Cancels/clears the notification if the save fails, instead of leaving
+    // a stuck "Downloading..." notification in the shade forever.
+    private fun showDownloadFailedNotification(fileName: String) {
+        val builder = NotificationCompat.Builder(applicationContext, DOWNLOAD_CHANNEL_ID)
+            .setSmallIcon(android.R.drawable.stat_sys_warning)
+            .setContentTitle("Download failed")
+            .setContentText(fileName)
+            .setOngoing(false)
+            .setAutoCancel(true)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+
+        val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        nm.notify(DOWNLOAD_NOTIF_ID, builder.build())
+    }
+
     private fun saveFileToDownloads(fileName: String, bytes: ByteArray): String {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val contentValues = ContentValues().apply {
-                put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
-                put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
-                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-            }
+        // 🆕 Show "Downloading..." notification before writing anything
+        showDownloadingNotification(fileName)
 
-            val resolver = applicationContext.contentResolver
-            val uri: Uri? = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
-
-            uri?.let {
-                val outputStream: OutputStream? = resolver.openOutputStream(it)
-                outputStream?.use { stream ->
-                    stream.write(bytes)
-                    stream.flush()
+        try {
+            val result = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val contentValues = ContentValues().apply {
+                    put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                    put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
+                    put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
                 }
-                println("✅ File saved via MediaStore: $it")
-                it.toString()
-            } ?: throw Exception("Failed to create MediaStore entry")
-        } else {
-            val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-            if (!downloadsDir.exists()) {
-                downloadsDir.mkdirs()
+
+                val resolver = applicationContext.contentResolver
+                val uri: Uri? = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+
+                uri?.let {
+                    val outputStream: OutputStream? = resolver.openOutputStream(it)
+                    outputStream?.use { stream ->
+                        stream.write(bytes)
+                        stream.flush()
+                    }
+                    println("✅ File saved via MediaStore: $it")
+
+                    // 🆕 Success notification, tappable, opens the PDF
+                    showDownloadCompleteNotification(fileName, it)
+
+                    it.toString()
+                } ?: throw Exception("Failed to create MediaStore entry")
+            } else {
+                val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                if (!downloadsDir.exists()) {
+                    downloadsDir.mkdirs()
+                }
+
+                val file = java.io.File(downloadsDir, fileName)
+                file.writeBytes(bytes)
+
+                MediaScannerConnection.scanFile(
+                    applicationContext,
+                    arrayOf(file.absolutePath),
+                    arrayOf("application/pdf"),
+                    null
+                )
+
+                println("✅ File saved (legacy): ${file.absolutePath}")
+
+                // 🆕 Success notification (legacy path uses a file:// Uri)
+                showDownloadCompleteNotification(fileName, Uri.fromFile(file))
+
+                file.absolutePath
             }
 
-            val file = java.io.File(downloadsDir, fileName)
-            file.writeBytes(bytes)
-
-            MediaScannerConnection.scanFile(
-                applicationContext,
-                arrayOf(file.absolutePath),
-                arrayOf("application/pdf"),
-                null
-            )
-
-            println("✅ File saved (legacy): ${file.absolutePath}")
-            file.absolutePath
+            return result
+        } catch (e: Exception) {
+            // 🆕 Replace "Downloading..." with a failure notification instead of
+            // leaving it stuck, then rethrow so the Dart side still sees the error.
+            showDownloadFailedNotification(fileName)
+            throw e
         }
     }
 }

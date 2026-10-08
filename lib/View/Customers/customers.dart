@@ -24,18 +24,13 @@ class _CustomersState extends State<Customers> {
   );
 
   bool isLoading = true;
-
   @override
   void initState() {
     super.initState();
-
+    _allCustomersController.isLoading.value = true;
     Future.microtask(() {
       _profileController.fetchOfficerProfile();
       _allCustomersController.fetchAllMembers();
-    });
-
-    Future.delayed(const Duration(milliseconds: 400), () {
-      if (mounted) setState(() => isLoading = false);
     });
   }
 
@@ -49,141 +44,143 @@ class _CustomersState extends State<Customers> {
         title: "Customers",
         subtitle: "Members under your district",
       ),
-      body: LoaderWrapper(
-        isLoading: isLoading,
-        shimmerItems: 10,
-        showCard: true,
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Obx(() {
-                  final profile = _profileController.officerProfile.value;
-                  return GridView.count(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 2.2,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: [
-                      _StatusContainer(
-                        count: "${profile?.memberCount ?? 0}",
-                        label: 'Assigned Customers',
-                        textColor: AppColors.primary,
-                      ),
-                      _StatusContainer(
-                        count: "${profile?.pinCodes.length ?? 0}",
-                        label: 'Active Pincode',
-                        textColor: AppColors.secondary,
-                      ),
-                    ],
-                  );
-                }),
-
-                const SizedBox(height: 18),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      "Recently Interacted",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.bodytextColor,
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Get.to(() => const AllCustomers());
-                      },
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        minimumSize: const Size(0, 0),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                      child: Row(
-                        children: const [
-                          Text(
-                            "View All",
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                          SizedBox(width: 2),
-                          Icon(
-                            LucideIcons.chevronRight,
-                            size: 16,
-                            color: AppColors.primary,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 10),
-
-                Expanded(
-                  child: Obx(() {
-                    if (_allCustomersController.isLoading.value) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-
-                    final recent = _allCustomersController.recentMembers;
-
-                    if (recent.isEmpty) {
-                      return Center(
-                        child: Text(
-                          "No recent customers",
-                          style: TextStyle(
-                            fontSize: 13.5,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.lighttextColor,
-                          ),
+      body: Obx(() {
+        return LoaderWrapper(
+          isLoading: _allCustomersController
+              .isLoading
+              .value, // 👈 real state, no timer
+          shimmerItems: 10,
+          showCard: true,
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Obx(() {
+                    final profile = _profileController.officerProfile.value;
+                    return GridView.count(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                      childAspectRatio: 2.2,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      children: [
+                        _StatusContainer(
+                          count: "${profile?.memberCount ?? 0}",
+                          label: 'Assigned Customers',
+                          textColor: AppColors.primary,
                         ),
-                      );
-                    }
-
-                    return ListView.builder(
-                      itemCount: recent.length,
-                      itemBuilder: (context, index) {
-                        final c = recent[index];
-                        return CustomerCard(
-                          customerId: c.membershipUserId, // 👈 display id
-                          companyName: c.industryName,
-                          isActive: c.isActive,
-                          memberTill: c.validTill ?? "-",
-                          pincode: c.pinCode,
-                          profileImageUrl: c.profile,
-                          onViewDetails: () {
-                            Get.to(
-                              () => CustomerDetails(
-                                customerId: c.membershipUserId,
-                                memberId: c.membershipId,
-                                companyName: c.industryName,
-                                isActive: c.isActive,
-                                memberTill: c.validTill ?? "-",
-                                address: c.plantAddress ?? "-", // 👈 changed
-                                profileImageUrl: c.profile,
-                              ),
-                            );
-                          },
-                        );
-                      },
+                        _StatusContainer(
+                          count: "${profile?.pinCodes.length ?? 0}",
+                          label: 'Active Pincode',
+                          textColor: AppColors.secondary,
+                        ),
+                      ],
                     );
                   }),
-                ),
-              ],
+
+                  const SizedBox(height: 18),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Recently Interacted",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.bodytextColor,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Get.to(() => const AllCustomers());
+                        },
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: const Size(0, 0),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Row(
+                          children: const [
+                            Text(
+                              "View All",
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                            SizedBox(width: 2),
+                            Icon(
+                              LucideIcons.chevronRight,
+                              size: 16,
+                              color: AppColors.primary,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  Expanded(
+                    child: Obx(() {
+                      // 👈 CircularProgressIndicator check REMOVED —
+                      // outer LoaderWrapper already covers the loading state
+                      final recent = _allCustomersController.recentMembers;
+
+                      if (recent.isEmpty) {
+                        return Center(
+                          child: Text(
+                            "No recent customers",
+                            style: TextStyle(
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.lighttextColor,
+                            ),
+                          ),
+                        );
+                      }
+
+                      return ListView.builder(
+                        itemCount: recent.length,
+                        itemBuilder: (context, index) {
+                          final c = recent[index];
+                          return CustomerCard(
+                            customerId: c.membershipUserId,
+                            companyName: c.industryName,
+                            isActive: c.isActive,
+                            memberTill: c.validTill ?? "-",
+                            pincode: c.pinCode,
+                            profileImageUrl: c.profile,
+                            onViewDetails: () {
+                              Get.to(
+                                () => CustomerDetails(
+                                  customerId: c.membershipUserId,
+                                  memberId: c.membershipId,
+                                  companyName: c.industryName,
+                                  isActive: c.isActive,
+                                  memberTill: c.validTill ?? "-",
+                                  address: c.plantAddress ?? "-",
+                                  profileImageUrl: c.profile,
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      );
+                    }),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      }),
     );
   }
 }

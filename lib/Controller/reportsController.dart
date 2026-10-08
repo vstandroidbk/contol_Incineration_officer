@@ -47,7 +47,9 @@ class ReportController extends GetxController {
       apiMessage.value = res["message"]?.toString() ?? '';
 
       if (res["status"] == "SUCCESS" && res["data"] != null) {
-        wasteCategoryReport.value = WasteCategoryReportModel.fromJson(res["data"]);
+        wasteCategoryReport.value = WasteCategoryReportModel.fromJson(
+          res["data"],
+        );
       } else {
         wasteCategoryReport.value = null;
         errorMessage.value = res["message"] ?? "Something went wrong.";
@@ -84,11 +86,7 @@ class ReportController extends GetxController {
 
   /// Call this every time a filter changes in the sheet. Debounced so rapid
   /// chip/dropdown taps don't fire a request per tap.
-  void onFilterChanged({
-    String? memberId,
-    int? year,
-    int? quarter,
-  }) {
+  void onFilterChanged({String? memberId, int? year, int? quarter}) {
     // Any change invalidates the last successful result immediately —
     // keeps the Export button disabled until the new combo is confirmed.
     previewedReport.value = null;
@@ -96,7 +94,11 @@ class ReportController extends GetxController {
 
     _checkDebounce?.cancel();
     _checkDebounce = Timer(const Duration(milliseconds: 500), () {
-      _checkReportAvailability(memberId: memberId, year: year, quarter: quarter);
+      _checkReportAvailability(
+        memberId: memberId,
+        year: year,
+        quarter: quarter,
+      );
     });
   }
 
@@ -121,7 +123,8 @@ class ReportController extends GetxController {
       } else {
         previewedReport.value = null;
         checkStatusMessage.value =
-            res["message"]?.toString() ?? "No data found for the selected filters.";
+            res["message"]?.toString() ??
+            "No data found for the selected filters.";
       }
     } catch (e) {
       previewedReport.value = null;
@@ -146,7 +149,9 @@ class ReportController extends GetxController {
       await FileDownloadHelper.downloadFile(
         context: context,
         fileUrl: report.pdfUrl,
-        customFileName: report.pdfFileName.isNotEmpty ? report.pdfFileName : null,
+        customFileName: report.pdfFileName.isNotEmpty
+            ? report.pdfFileName
+            : null,
         displayName: 'Waste Report',
       );
     } finally {
@@ -160,7 +165,7 @@ class ReportController extends GetxController {
     super.onClose();
   }
 
-   Future<void> checkReportAvailability({
+  Future<void> checkReportAvailability({
     String? memberId,
     int? year,
     int? quarter,

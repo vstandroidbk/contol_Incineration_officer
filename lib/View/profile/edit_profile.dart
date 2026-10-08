@@ -2,12 +2,14 @@ import 'dart:io';
 import 'package:contol_officer_app/Controller/profileController.dart';
 import 'package:contol_officer_app/utils/single_date_calendar.dart';
 import 'package:contol_officer_app/utils/upload_img.dart';
+import 'package:contol_officer_app/utils/validation.dart';
 import 'package:contol_officer_app/widgets/app_bar.dart';
 import 'package:contol_officer_app/widgets/dropdown.dart';
 import 'package:contol_officer_app/widgets/text_field.dart';
 import 'package:contol_officer_app/utils/colors.dart';
 import 'package:contol_officer_app/utils/snackbar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:intl/intl.dart';
@@ -21,6 +23,7 @@ class Editprofile extends StatefulWidget {
 
 class _EditprofileState extends State<Editprofile> {
   final ProfileController _profileController = Get.find<ProfileController>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   late final TextEditingController officerNameController;
   late final TextEditingController emailController;
@@ -110,7 +113,9 @@ class _EditprofileState extends State<Editprofile> {
         officerNameController.text.trim() != _originalName ||
         emailController.text.trim() != _originalEmail ||
         phoneController.text.trim() != _originalPhone ||
-        joinDateController.text.trim() != _originalJoinDate;
+        joinDateController.text.trim() != _originalJoinDate ||
+        profileImagePath !=
+            null; // 👈 add — picking a new image also enables Save
 
     if (changed != _hasChanges) {
       setState(() {
@@ -135,26 +140,11 @@ class _EditprofileState extends State<Editprofile> {
     showDialog(
       context: context,
       builder: (dialogContext) => UploadDocumentDialogImg(
-        onFilePicked: (path) async {
+        onFilePicked: (path) {
           setState(() {
-            profileImagePath = path;
+            profileImagePath = path; // 👈 only local preview, no upload here
           });
-
-          final res = await _profileController.uploadProfileImage(path);
-
-          if (!mounted) return;
-
-          if (res["status"] == "SUCCESS") {
-            AppSnackBar.success(
-              context: context,
-              message: res["message"] ?? "Profile photo updated",
-            );
-          } else {
-            AppSnackBar.error(
-              context: context,
-              message: res["message"] ?? "Failed to upload photo",
-            );
-          }
+          _checkForChanges(); // 👈 re-evaluate Save button state
         },
       ),
     );
@@ -178,17 +168,34 @@ class _EditprofileState extends State<Editprofile> {
   }
 
   Future<void> _onSavePressed() async {
-    if (!_hasChanges) return; // safety guard
+    if (!_hasChanges) return;
+    if (!_formKey.currentState!.validate()) return;
+
+    // 👇 upload image first, only now — if user picked one
+    if (profileImagePath != null) {
+      final imgRes = await _profileController.uploadProfileImage(
+        profileImagePath!,
+      );
+      if (!mounted) return;
+
+      if (imgRes["status"] != "SUCCESS") {
+        AppSnackBar.error(
+          context: context,
+          message: imgRes["message"] ?? "Failed to upload photo",
+        );
+        return; // 👈 stop — don't proceed to save other fields if image upload failed
+      }
+    }
 
     final formattedJoinDate = _selectedDate != null
         ? DateFormat('dd/MM/yyyy').format(_selectedDate!)
-        : joinDateController.text.trim(); // fallback, shouldn't normally hit
+        : joinDateController.text.trim();
 
     final res = await _profileController.editOfficerProfile(
       fullName: officerNameController.text.trim(),
       email: emailController.text.trim(),
       mobileNumber: phoneController.text.trim(),
-      joiningDate: formattedJoinDate, // 👈 changed
+      joiningDate: formattedJoinDate,
     );
 
     if (!mounted) return;
@@ -267,144 +274,162 @@ class _EditprofileState extends State<Editprofile> {
 
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Obx(() {
-                final networkImage =
-                    _profileController.officerProfile.value?.profile;
-                final isUploading = _profileController.isUploadingImage.value;
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Obx(() {
+                  final networkImage =
+                      _profileController.officerProfile.value?.profile;
+                  final isUploading = _profileController.isUploadingImage.value;
 
-                // 👇 changed — avatarImage can now be null (icon fallback case)
-                ImageProvider? avatarImage;
-                if (profileImagePath != null) {
-                  avatarImage = FileImage(File(profileImagePath!));
-                } else if (networkImage != null && networkImage.isNotEmpty) {
-                  avatarImage = NetworkImage(networkImage);
-                } else {
-                  avatarImage =
-                      null; // 👈 changed — no more AssetImage fallback
-                }
+                  // 👇 changed — avatarImage can now be null (icon fallback case)
+                  ImageProvider? avatarImage;
+                  if (profileImagePath != null) {
+                    avatarImage = FileImage(File(profileImagePath!));
+                  } else if (networkImage != null && networkImage.isNotEmpty) {
+                    avatarImage = NetworkImage(networkImage);
+                  } else {
+                    avatarImage =
+                        null; // 👈 changed — no more AssetImage fallback
+                  }
 
-                return GestureDetector(
-                  onTap: isUploading ? null : _openImagePickerDialog,
-                  child: Stack(
-                    alignment: Alignment.bottomRight,
-                    children: [
-                      CircleAvatar(
-                        radius: 40,
-                        backgroundColor: AppColors.primary.withOpacity(
-                          0.1,
-                        ), // 👈 add — soft bg behind icon
-                        backgroundImage: avatarImage,
-                        child: avatarImage == null
-                            ? Icon(
-                                LucideIcons
-                                    .user, // 👈 add — icon fallback instead of asset image
-                                size: 28,
-                                color: AppColors.primary,
-                              )
-                            : null,
-                      ),
-                      if (isUploading)
-                        const Positioned.fill(
-                          child: CircleAvatar(
-                            radius: 40,
-                            backgroundColor: Colors.black38,
-                            child: SizedBox(
-                              height: 22,
-                              width: 22,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
+                  return GestureDetector(
+                    onTap: isUploading ? null : _openImagePickerDialog,
+                    child: Stack(
+                      alignment: Alignment.bottomRight,
+                      children: [
+                        CircleAvatar(
+                          radius: 40,
+                          backgroundColor: AppColors.primary.withOpacity(
+                            0.1,
+                          ), // 👈 add — soft bg behind icon
+                          backgroundImage: avatarImage,
+                          child: avatarImage == null
+                              ? Icon(
+                                  LucideIcons
+                                      .user, // 👈 add — icon fallback instead of asset image
+                                  size: 28,
+                                  color: AppColors.primary,
+                                )
+                              : null,
+                        ),
+                        if (isUploading)
+                          const Positioned.fill(
+                            child: CircleAvatar(
+                              radius: 40,
+                              backgroundColor: Colors.black38,
+                              child: SizedBox(
+                                height: 22,
+                                width: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      if (!isUploading)
-                        Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: const BoxDecoration(
-                            color: AppColors.primary,
-                            shape: BoxShape.circle,
+                        if (!isUploading)
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: const BoxDecoration(
+                              color: AppColors.primary,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              LucideIcons.edit,
+                              color: Colors.white,
+                              size: 18,
+                            ),
                           ),
-                          child: const Icon(
-                            LucideIcons.edit,
-                            color: Colors.white,
-                            size: 18,
-                          ),
-                        ),
-                    ],
-                  ),
-                );
-              }),
-              const SizedBox(height: 8),
+                      ],
+                    ),
+                  );
+                }),
+                const SizedBox(height: 8),
 
-              if (profile?.loginId != null && profile!.loginId.isNotEmpty)
-                Text(
-                  profile.loginId,
-                  style: TextStyle(
-                    color: AppColors.bodytextColor.withOpacity(0.7),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                if (profile?.loginId != null && profile!.loginId.isNotEmpty)
+                  Text(
+                    profile.loginId,
+                    style: TextStyle(
+                      color: AppColors.bodytextColor.withOpacity(0.7),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+
+                const SizedBox(height: 25),
+
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "Officer Profile Information",
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
 
-              const SizedBox(height: 25),
+                const SizedBox(height: 6),
+                const Divider(height: 1, color: AppColors.textfieldBorder),
+                const SizedBox(height: 20),
 
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Officer Profile Information",
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                CustomTextField(
+                  label: "Officer Name",
+                  hintText: "Enter full name",
+                  controller: officerNameController,
+                  isRequired: true,
+                  validator: (value) => ValidationUtil.validateName(
+                    value ?? "",
+                    fieldName: "Officer Name",
                   ),
                 ),
-              ),
+                const SizedBox(height: 10),
 
-              const SizedBox(height: 6),
-              const Divider(height: 1, color: AppColors.textfieldBorder),
-              const SizedBox(height: 20),
+                CustomTextField(
+                  label: "Email",
+                  hintText: "Enter email",
+                  controller: emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  isRequired: true,
+                  validator: (value) =>
+                      ValidationUtil.validateEmail(value ?? ""),
+                ),
+                const SizedBox(height: 10),
 
-              CustomTextField(
-                label: "Officer Name",
-                hintText: "Enter full name",
-                controller: officerNameController,
-              ),
-              const SizedBox(height: 10),
+                CustomTextField(
+                  label: "Phone Number",
+                  hintText: "Enter phone number",
+                  controller: phoneController,
+                  keyboardType: TextInputType.phone,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(10),
+                  ],
+                  isRequired: true,
+                  validator: (value) =>
+                      ValidationUtil.validateMobile(value ?? ""),
+                ),
+                const SizedBox(height: 10),
 
-              CustomTextField(
-                label: "Email",
-                hintText: "Enter email",
-                controller: emailController,
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 10),
-
-              CustomTextField(
-                label: "Phone Number",
-                hintText: "Enter phone number",
-                controller: phoneController,
-                keyboardType: TextInputType.phone,
-              ),
-              const SizedBox(height: 10),
-
-              // 👇 Join Date — calendar icon suffix, tapping opens SingleDateCalendarDialog
-              CustomTextField(
-                label: "Join Date",
-                hintText: "dd/mm/yyyy",
-                controller: joinDateController,
-                keyboardType: TextInputType.datetime,
-                enabled: true,
-                readOnly: true, // user can't type manually — only via dialog
-                showCalendarIcon: true, // 👈 shows calendar icon suffix
-                onUploadTap:
-                    _openJoinDateDialog, // 👈 officer app's CustomTextField reuses onUploadTap for calendar tap
-                onTap:
-                    _openJoinDateDialog, // 👈 tapping the field itself also opens dialog
-              ),
-            ],
+                // 👇 Join Date — calendar icon suffix, tapping opens SingleDateCalendarDialog
+                CustomTextField(
+                  label: "Join Date",
+                  hintText: "dd/mm/yyyy",
+                  controller: joinDateController,
+                  keyboardType: TextInputType.datetime,
+                  enabled: false,
+                  readOnly: true, // user can't type manually — only via dialog
+                  showCalendarIcon: false, // 👈 shows calendar icon suffix
+                  // onUploadTap:
+                  //     _openJoinDateDialog, // 👈 officer app's CustomTextField reuses onUploadTap for calendar tap
+                  // onTap:
+                  //     _openJoinDateDialog, // 👈 tapping the field itself also opens dialog
+                ),
+              ],
+            ),
           ),
         );
       }),
